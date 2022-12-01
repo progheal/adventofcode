@@ -49,14 +49,14 @@ T convert(const std::string& s)
 inline bool isWhitespace(char c) {return c == ' ' || c == '\t' || c == '\n';}
 
 template <class T, class Func>
-void read(std::istream& in, Func callback, char delim = 0)
+void read(std::istream& in, Func callback, char delim = 0, bool keepEmpty = false)
 {
 	std::string token;
 	if(delim != 0)
 	{
 		while(getline(in, token, delim), !in.fail())
 		{
-			if(token == "") continue;
+			if(!keepEmpty && token == "") continue;
 			size_t l = 0, r = token.size() - 1;
 			while(r > 0 && isWhitespace(token[r])) r--;
 			while(l <= r && isWhitespace(token[l])) l++;
@@ -71,7 +71,7 @@ void read(std::istream& in, Func callback, char delim = 0)
 		{
 			if(isWhitespace(c))
 			{
-				if(token != "") callback(convert<T>(token));
+				if(keepEmpty || token != "") callback(convert<T>(token));
 				token = "";
 			}
 			else
@@ -79,15 +79,15 @@ void read(std::istream& in, Func callback, char delim = 0)
 				token += c;
 			}
 		}
-		if(token != "") callback(convert<T>(token));
+		if(keepEmpty || token != "") callback(convert<T>(token));
 	}
 }
 
 template <class T, class Func>
-void read(const std::string& s, Func callback, char delim = 0)
+void read(const std::string& s, Func callback, char delim = 0, bool keepEmpty = false)
 {
 	std::istringstream ss {s};
-	read<T>(ss, callback, delim);
+	read<T>(ss, callback, delim, keepEmpty);
 }
 
 inline std::vector<std::string> readPicture(std::istream& in)
@@ -102,38 +102,38 @@ inline std::vector<std::string> readPicture(std::istream& in)
 }
 
 template <class Func>
-void readPerLine(std::istream& in, Func callback)
+void readPerLine(std::istream& in, Func callback, bool keepEmpty = false)
 {
-	read<std::string>(in, callback, '\n');
+	read<std::string>(in, callback, '\n', keepEmpty);
 }
 
 template <class T>
-std::vector<T> readToVector(std::istream& in, char delim = 0)
+std::vector<T> readToVector(std::istream& in, char delim = 0, bool keepEmpty = false)
 {
 	std::vector<T> ret;
-	read<T>(in, [&](const T& value){ret.push_back(value);}, delim);
+	read<T>(in, [&](const T& value){ret.push_back(value);}, delim, keepEmpty);
 	return ret;
 }
 
 template <class T>
-auto readToVector(const std::string& s, char delim = 0)
+auto readToVector(const std::string& s, char delim = 0, bool keepEmpty = false)
 {
 	std::istringstream ss {s};
-	return readToVector<T>(ss, delim);
+	return readToVector<T>(ss, delim, keepEmpty);
 }
 
 template <class Func>
-void readPerLineTokenized(std::istream& in, Func callback, char delim = 0)
+void readPerLineTokenized(std::istream& in, Func callback, char delim = 0, bool keepEmpty = false)
 {
 	read<std::string>(in,
 		[&](const std::string& line)
 		{
 			callback(readToVector<std::string>(line, delim));
-		}, '\n');
+		}, '\n', keepEmpty);
 }
 
 template <class T>
-std::vector<std::vector<T>> readToMatrix(std::istream& in, char delim = 0)
+std::vector<std::vector<T>> readToMatrix(std::istream& in, char delim = 0, bool keepEmpty = false)
 {
 	std::vector<std::vector<T>> ret;
 	read<std::string>(in,
@@ -142,15 +142,15 @@ std::vector<std::vector<T>> readToMatrix(std::istream& in, char delim = 0)
 			std::vector<T> row;
 			read<T>(line, [&](const T& value){row.push_back(value);}, delim);
 			ret.push_back(std::move(row));
-		}, '\n');
+		}, '\n', keepEmpty);
 	return ret;
 }
 
 template <class T>
-auto readToMatrix(const std::string& s, char delim = 0)
+auto readToMatrix(const std::string& s, char delim = 0, bool keepEmpty = false)
 {
 	std::istringstream ss {s};
-	return readToMatrix<T>(ss, delim);
+	return readToMatrix<T>(ss, delim, keepEmpty);
 }
 
 }
