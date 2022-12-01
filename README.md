@@ -1,6 +1,6 @@
 Advent of Code 解題程式碼
 
-[文章連結] (https://blog.cruciferslab.net/?p=1153)
+[文章連結](https://blog.cruciferslab.net/?p=1153)
 
 `aoclib` 是一些題目之間的公用函式：
 
