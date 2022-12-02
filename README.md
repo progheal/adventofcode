@@ -15,3 +15,15 @@ Advent of Code 解題程式碼
 各年度的程式碼以年度為資料夾分類。
 
 部份程式會將 A B 部份合在一支程式當中，以叫用時的程式名表示是何部份；程式由標準輸入讀取，輸出至標準輸出。
+
+使用的 C++ 標準預設是 C++17，所以公用函式也以 C++17 為標準來寫，不會使用到 C++20 的新功能。(特別是泛型程式**不會**使用 C++20 concept) 各題的程式本身則視狀況而定，會寫在 `Makefile` 裡。
+
+====
+
+[English]
+
+This is my AoC solutions.
+
+Comments and documents will mostly in Traditional Chinese; the link at the top
+of the document is a blog post by me (also in Traditional Chinese) describing
+some thoughts and processes when solving the problems in 2022. 

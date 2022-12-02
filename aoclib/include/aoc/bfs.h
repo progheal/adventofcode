@@ -9,31 +9,38 @@ namespace AOC
 {
 
 /*
-struct State // spec
+struct State // 搜尋狀態結構的指定介面
 {
-	// Cost type; must
-	// 1. Either is integral or have size() convert it to integral
-	// 2. Support + to combine cost
+	// 花費型態，必須滿足下列兩條件：
+	// 1. 是整數，或有 size() 函數可轉為整數
+	// 2. 支援 operator + 合併花費
 	typedef ... cost_t;
-	// Is this state finish state
+
+	// 此狀態是否為目標狀態；搜尋到此即會跳出
+	// 若永遠回傳 false 則相當於將所有能搜的部份都搜完
 	bool isFinish() const;
-	// Get all next moves
-	// Return vector of pair of {next state, move cost)
+	
+	// 取得此狀態的相鄰狀態
+	// 回傳元素為 pair{次一狀態，移動花費} 的 vector
 	vector<pair<State, cost_t>> nextMoves() const;
-	// Unique identifier of this state
+
+	// 能辨識此一狀態的值，用來判斷是否已走過
+	// 此型態要能用在 std::unordered_set<>
 	... id() const;
-	// AStar heuristic function
-	// return estimated # of remaining steps
+
+	// A* 用的估計函數，回傳一個**低估的**預估剩餘值
+	// 若永遠回傳 0 則 A* 變為 Dijkstra 演算法
 	int estimateRemain() const;
-	// Visit current path
-	// does not call if this function does not exist
-	void visit(const Cost& path) const;
+
+	// 若有此函數則在走到此狀態時會傳入目前花費呼叫之，可供除錯或紀錄
+	void visit(const cost_t& path) const;
 };
 */
 
 namespace detail
 {
 
+// SFINAE 判斷狀態類別是否有 visit 函數
 template<class C, class = void>
 class HasVisit : public std::false_type {};
 
@@ -42,6 +49,7 @@ class HasVisit<C,
 	std::void_t<decltype(std::declval<C>().visit(std::declval<typename C::cost_t>()))>
 > : public std::true_type {};
 
+// 若有 visit 函數則呼叫之
 template<class C>
 inline std::enable_if_t<!HasVisit<C>::value> doVisit(const C& c, const typename C::cost_t& path)
 {
@@ -53,6 +61,7 @@ inline std::enable_if_t<HasVisit<C>::value> doVisit(const C& c, const typename C
 	c.visit(path);
 }
 
+// 將花費型態轉為整數
 template<class T>
 inline std::enable_if_t<std::is_arithmetic_v<T>, int> cost_value(const T& value)
 {
@@ -67,6 +76,7 @@ inline decltype(std::declval<T>().size(), int()) cost_value(const T& value)
 
 } // namespace detail
 
+// BFS 搜尋 (如淹水或走迷宮)，回傳走到目標時的花費 (0 表示走不到)
 template<class State>
 auto BFS(const State& init)
 {
@@ -75,7 +85,7 @@ auto BFS(const State& init)
 	typedef decltype(std::declval<State>().id()) IdType;
 	std::queue<queueItem> q;
 	q.push({init, Cost{}});
-	std::set<IdType> visited;
+	std::unordered_set<IdType> visited;
 
 	while(!q.empty() && !q.front().first.isFinish())
 	{
@@ -99,6 +109,8 @@ auto BFS(const State& init)
 	}
 }
 
+// A* 演算法 (帶估計剩餘量的 BFS 搜尋)，或當估計固定回傳 0 時為 Dijkstra 演算法
+// 回傳走到目標時的花費 (0 表示走不到)
 template<class State>
 auto AStar(const State& init)
 {
@@ -112,7 +124,7 @@ auto AStar(const State& init)
 	};
 	std::priority_queue q{comparator, std::vector<queueItem>()};
 	q.push({init, Cost{}});
-	std::set<IdType> visited;
+	std::unordered_set<IdType> visited;
 
 	while(!q.empty() && !q.top().first.isFinish())
 	{
