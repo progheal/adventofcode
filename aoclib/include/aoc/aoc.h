@@ -139,6 +139,39 @@ auto readToVector(const std::string& s, char delim = 0, bool keepEmpty = false)
 	return readToVector<T>(ss, delim, keepEmpty);
 }
 
+// 由字串讀入所有數字
+inline auto readNumbers(const std::string& s, bool hasNegative = false)
+{
+	std::vector<int> ret;
+	int v = 0, sign = 1;
+	bool inDigit = false;
+	for(char c : s)
+	{
+		if(c >= '0' && c <= '9')
+		{
+			inDigit = true;
+			v = v * 10 + (c - '0');
+		}
+		else if(c == '-' && hasNegative)
+		{
+			inDigit = true;
+			sign = -1;
+		}
+		else if(inDigit)
+		{
+			ret.push_back(v * sign);
+			v = 0;
+			sign = 1;
+			inDigit = false;
+		}
+	}
+	if(inDigit)
+	{
+		ret.push_back(v * sign);
+	}
+	return ret;
+}
+
 // 由串流讀入每行，將每行切割後呼叫 callback
 template <class Func>
 void readPerLineTokenized(std::istream& in, Func callback, char delim = 0, bool keepEmpty = false)
@@ -148,6 +181,17 @@ void readPerLineTokenized(std::istream& in, Func callback, char delim = 0, bool 
 		{
 			callback(readToVector<std::string>(line, delim));
 		}, '\n', keepEmpty);
+}
+
+// 由串流讀入每行，將每行切割為數字後呼叫 callback
+template <class Func>
+void readPerLineNumbers(std::istream& in, Func callback, bool hasNegative = false)
+{
+	read<std::string>(in,
+		[&](const std::string& line)
+		{
+			callback(readNumbers(line, hasNegative));
+		});
 }
 
 // 由串流讀入二維矩陣
@@ -171,6 +215,25 @@ auto readToMatrix(const std::string& s, char delim = 0, bool keepEmpty = false)
 {
 	std::istringstream ss {s};
 	return readToMatrix<T>(ss, delim, keepEmpty);
+}
+
+// 由串流讀入二維數字
+inline auto readNumberMatrix(std::istream& in, bool hasNegative = false)
+{
+	std::vector<std::vector<int>> ret;
+	read<std::string>(in,
+		[&](const std::string& line)
+		{
+			ret.push_back(readNumbers(line, hasNegative));
+		});
+	return ret;
+}
+
+// 由字串讀入二維數字
+inline auto readNumberMatrix(const std::string& s, bool hasNegative = false)
+{
+	std::istringstream ss {s};
+	return readNumberMatrix(ss, hasNegative);
 }
 
 }
