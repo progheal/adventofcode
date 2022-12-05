@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <array>
 #include <sstream>
 #include <type_traits>
 
@@ -234,6 +235,18 @@ inline auto readNumberMatrix(const std::string& s, bool hasNegative = false)
 {
 	std::istringstream ss {s};
 	return readNumberMatrix(ss, hasNegative);
+}
+
+// 將 std::vector 的前 N 個元素取出做成 std::array
+// 使其可以使用在 std::tie 或 structured binding
+template<int N, class T>
+auto takeFirst(const std::vector<T>& v)
+{
+    if(v.size() < N)
+        throw std::length_error("vector should have at least " + std::to_string(N) + " values.");
+    std::array<T, N> arr;
+	std::copy_n(v.begin(), N, arr.begin());
+	return arr;
 }
 
 }

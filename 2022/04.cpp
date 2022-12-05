@@ -11,8 +11,7 @@ int main(int argc, char* argv[])
 	int count = 0, overlap = 0;
 	AOC::readPerLineNumbers(cin,
 		[&](const vector<int>& token){
-			int t1l = token[0], t1r = token[1],
-			    t2l = token[2], t2r = token[3];
+			auto [t1l, t1r, t2l, t2r] = AOC::takeFirst<4>(token);
 			if(t1l >= t2l && t1r <= t2r || t1l <= t2l && t1r >= t2r)
 			   	count++;
 			if(t1l <= t2r && t1r >= t2l || t2l <= t1r && t2r >= t1l)
