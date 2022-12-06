@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <regex>
-#include "util.h"
+#include "aoc/util.h"
 using namespace std;
 
 template<class T>

@@ -13,5 +13,10 @@ namespace AOC
 std::vector<std::string> tokenize(std::string_view source, std::regex delimiter);
 std::vector<std::string> tokenize(std::string_view source, std::string delimiter);
 
+// 旋轉字串陣列，缺的補空白
+std::vector<std::string> rotateCW(const std::vector<std::string>& vs);
+std::vector<std::string> rotateCCW(const std::vector<std::string>& vs);
+std::vector<std::string> rotate180(const std::vector<std::string>& vs);
+
 }
 

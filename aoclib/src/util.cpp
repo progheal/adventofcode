@@ -1,7 +1,10 @@
 #include <iostream>
 #include <string_view>
 #include <regex>
+#include <numeric>
+#include <string>
 #include "aoc/aoc.h"
+using namespace std::string_literals;
 
 namespace AOC
 {
@@ -67,6 +70,59 @@ std::vector<std::string> tokenize(std::string_view source, std::regex delimiter)
 std::vector<std::string> tokenize(std::string_view source, std::string delimiter)
 {
 	return tokenize_impl(source, DelimiterFinder(delimiter));
+}
+
+///////////////////////////////////////
+
+std::vector<std::string> rotateCW(const std::vector<std::string>& vs)
+{
+	size_t width = std::accumulate(vs.begin(), vs.end(), (size_t)0,
+		[](size_t m, const std::string& s){return std::max(m, s.size());});
+
+	std::vector<std::string> ret;
+	for(size_t i = 0; i < width; i++)
+	{
+		ret.push_back(std::accumulate(vs.rbegin(), vs.rend(), ""s,
+			[i](std::string s, const std::string& line)
+			{
+				return s + (i < line.size() ? line[i] : ' ');
+			}));
+	}
+
+	return ret;
+}
+
+std::vector<std::string> rotateCCW(const std::vector<std::string>& vs)
+{
+	size_t width = std::accumulate(vs.begin(), vs.end(), (size_t)0,
+		[](size_t m, const std::string& s){return std::max(m, s.size());});
+
+	std::vector<std::string> ret;
+	for(size_t i = width; i-- > 0; )
+	{
+		ret.push_back(std::accumulate(vs.begin(), vs.end(), ""s,
+			[i](std::string s, const std::string& line)
+			{
+				return s + (i < line.size() ? line[i] : ' ');
+			}));
+	}
+
+	return ret;
+}
+
+std::vector<std::string> rotate180(const std::vector<std::string>& vs)
+{
+	size_t width = std::accumulate(vs.begin(), vs.end(), (size_t)0,
+		[](size_t m, const std::string& s){return std::max(m, s.size());});
+
+	std::vector<std::string> ret;
+	std::transform(vs.rbegin(), vs.rend(), std::back_inserter(ret),
+		[width](std::string s)
+		{
+			s.resize(width, ' ');
+			return std::string{s.rbegin(), s.rend()};
+		});
+	return ret;
 }
 
 }

@@ -12,7 +12,9 @@ ifdef DEBUG
 	CXXFLAGS += -g -DDEBUG=$(DEBUG)
 endif
 
-all: ${BUILD}/libaoc.a ${BUILD}/test/aococr
+.PHONY: all test
+
+all: ${BUILD}/libaoc.a test
 
 ${BUILD}:
 	mkdir ${BUILD}
@@ -24,9 +26,11 @@ ${BUILD}/%.o: ${SRC}/%.cpp | ${BUILD}
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
 
 LINKFLAGS = -L${BUILD}
-TESTOBJECTS = ${BUILD}/test/ocrmain.o
+TESTS = ocrmain rotate tokenize
 LIBRARIES = ${BUILD}/libaoc.a
 LIBARGS = -laoc
+
+test: $(foreach target, ${TESTS}, ${BUILD}/test/${target})
 
 ${BUILD}/test:
 	mkdir ${BUILD}/test
@@ -34,6 +38,6 @@ ${BUILD}/test:
 ${BUILD}/test/%.o: ${TEST}/%.cpp | ${BUILD}/test
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
 
-${BUILD}/test/aococr: $(TESTOBJECTS) $(LIBRARIES)
-	$(CXX) $(LINKFLAGS) $(TESTOBJECTS) $(LIBARGS) -o $@
+${BUILD}/test/%: ${BUILD}/test/%.o $(LIBRARIES)
+	$(CXX) $(LINKFLAGS) $< $(LIBARGS) -o $@
 
