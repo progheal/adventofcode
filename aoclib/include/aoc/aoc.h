@@ -4,6 +4,7 @@
 #include <string>
 #include <array>
 #include <sstream>
+#include <algorithm>
 #include <type_traits>
 
 namespace AOC
