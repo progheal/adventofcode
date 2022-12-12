@@ -20,7 +20,7 @@ endif
 	cp -f ./$^ ./$@
 
 %a: %.o
-	$(CXX) $(LINKFLAGS) $^ -o $@
+	$(CXX) $^ $(LINKFLAGS) -o $@
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
