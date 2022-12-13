@@ -26,18 +26,19 @@ ${BUILD}/%.o: ${SRC}/%.cpp | ${BUILD}
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
 
 LINKFLAGS = -L${BUILD}
-TESTS = ocrmain rotate tokenize
+TESTS = ocr rotate tokenize
 LIBRARIES = ${BUILD}/libaoc.a
-LIBARGS = -laoc
+LIBARGS = -laoc -lgtest -lgtest_main
 
-test: $(foreach target, ${TESTS}, ${BUILD}/test/${target})
+TESTOBJ = $(foreach target, ${TESTS}, ${BUILD}/test/${target}.o)
+
+test: ${BUILD}/test/testall
 
 ${BUILD}/test:
 	mkdir ${BUILD}/test
 
+${BUILD}/test/testall: ${TESTOBJ}
+	$(CXX) $(LINKFLAGS) $^ $(LIBARGS) -o $@
+
 ${BUILD}/test/%.o: ${TEST}/%.cpp | ${BUILD}/test
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
-
-${BUILD}/test/%: ${BUILD}/test/%.o $(LIBRARIES)
-	$(CXX) $(LINKFLAGS) $< $(LIBARGS) -o $@
-
