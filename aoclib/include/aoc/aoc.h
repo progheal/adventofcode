@@ -193,7 +193,7 @@ void readPerLineNumbers(std::istream& in, Func callback, bool hasNegative = fals
 		[&](const std::string& line)
 		{
 			callback(readNumbers(line, hasNegative));
-		});
+		}, '\n');
 }
 
 // 由串流讀入二維矩陣
