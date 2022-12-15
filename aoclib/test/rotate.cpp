@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -29,45 +28,45 @@ TEST(UtilTest, Rotate)
         "*****"
     };
 
-    EXPECT_THAT(AOC::rotateCW(input1),
-        ::testing::ContainerEq(vector<string>{
+    EXPECT_EQ(AOC::rotateCW(input1),
+        (vector<string>{
             "upkfaUPKFA",
             "vqlgbVQLGB",
             "wrmhcWRMHC",
             "xsnidXSNID",
             "ytojeYTOJE",
         }));
-    EXPECT_THAT(AOC::rotate180(input1),
-        ::testing::ContainerEq(vector<string>{
+    EXPECT_EQ(AOC::rotate180(input1),
+        (vector<string>{
             "yxwvu", "tsrqp", "onmlk", "jihgf", "edcba",
             "YXWVU", "TSRQP", "ONMLK", "JIHGF", "EDCBA"
         }));
-    EXPECT_THAT(AOC::rotateCCW(input1),
-        ::testing::ContainerEq(vector<string>{
+    EXPECT_EQ(AOC::rotateCCW(input1),
+        (vector<string>{
             "EJOTYejoty",
             "DINSXdinsx",
             "CHMRWchmrw",
             "BGLQVbglqv",
             "AFKPUafkpu"
         }));
-    EXPECT_THAT(AOC::rotateCW(input2),
-        ::testing::ContainerEq(vector<string>{
+    EXPECT_EQ(AOC::rotateCW(input2),
+        (vector<string>{
             "*****",
             "**** ",
             "***  ",
             "**   ",
             "*    "
         }));
-    EXPECT_THAT(AOC::rotate180(input2),
-        ::testing::ContainerEq(vector<string>{
+    EXPECT_EQ(AOC::rotate180(input2),
+        (vector<string>{
             "*****",
             " ****",
             "  ***",
             "   **",
             "    *"
         }));
-    EXPECT_THAT(AOC::rotateCCW(input2),
-        ::testing::ContainerEq(vector<string>{
+    EXPECT_EQ(AOC::rotateCCW(input2),
+        (vector<string>{
             "    *",
             "   **",
             "  ***",
