@@ -14,6 +14,9 @@ endif
 
 10a: LINKFLAGS += -L../aoclib/build -laoc
 
+15s: 15s.o
+	$(CXX) $^ $(LINKFLAGS) -o $@
+
 .SUFFIXES:
 
 %b: %a
