@@ -227,7 +227,7 @@ inline auto readNumberMatrix(std::istream& in, bool hasNegative = false)
 		[&](const std::string& line)
 		{
 			ret.push_back(readNumbers(line, hasNegative));
-		});
+		}, '\n');
 	return ret;
 }
 

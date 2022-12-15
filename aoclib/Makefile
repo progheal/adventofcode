@@ -26,7 +26,7 @@ ${BUILD}/%.o: ${SRC}/%.cpp | ${BUILD}
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
 
 LINKFLAGS = -L${BUILD}
-TESTS = ocr rotate tokenize
+TESTS = input ocr rotate tokenize
 LIBRARIES = ${BUILD}/libaoc.a
 LIBARGS = -laoc -lgtest -lgtest_main
 
