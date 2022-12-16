@@ -8,6 +8,10 @@ ifdef DEBUG
   CXXFLAGS += -g
 endif
 
+ifdef OPT
+  CXXFLAGS += -O3
+endif
+
 ifdef D
   CXXFLAGS += $(D)
 endif
