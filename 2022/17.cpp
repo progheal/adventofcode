@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 		heights.push_back(field.size()-1);
 
 		auto check = make_pair((sp-1)%5, (wp-1+wsz)%wsz);
-		if(drops[check].size() != 0)
+		if(partb && drops[check].size() != 0)
 		{
 			for(int x : drops[check])
 			{
