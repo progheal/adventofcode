@@ -26,9 +26,9 @@ ${BUILD}/%.o: ${SRC}/%.cpp | ${BUILD}
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
 
 LINKFLAGS = -L${BUILD}
-TESTS = input ocr rotate tokenize
+TESTS = grid input ocr rotate tokenize
 LIBRARIES = ${BUILD}/libaoc.a
-LIBARGS = -laoc -lgtest -lgtest_main
+LIBARGS = -laoc -lgtest -lgmock -lgtest_main
 
 TESTOBJ = $(foreach target, ${TESTS}, ${BUILD}/test/${target}.o)
 
