@@ -14,7 +14,6 @@ struct Monkey
 	int64_t value;
 	string arg1, op, arg2;
 	int64_t call(bool partb);
-	int64_t root();
 	int64_t expect(int64_t expectation);
 };
 
@@ -81,15 +80,6 @@ int64_t Monkey::expect(int64_t expectation)
 	}
 }
 
-int64_t Monkey::root()
-{
-	int64_t v1 = monkeys[arg1].call(true);
-	if(v1 == NOTHING)
-		return monkeys[arg1].expect(monkeys[arg2].call(true));
-	else
-		return monkeys[arg2].expect(v1);
-}
-
 int main(int argc, char* argv[])
 {
 	bool partb = AOC::PartB(argv[0]);
@@ -110,7 +100,8 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		cout << monkeys["root"].root() << endl;
+		monkeys["root"].op = "-";
+		cout << monkeys["root"].expect(0) << endl;
 	}
 
 	return 0;
