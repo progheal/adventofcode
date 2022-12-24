@@ -10,30 +10,46 @@ namespace AOC
 {
 
 /*
-struct State // 搜尋狀態結構的指定介面
+// 搜尋狀態結構的指定介面
+// Interface of states to search
+// Note: I default to C++17 so no concept check
+struct State
 {
 	// 花費型態，必須滿足下列兩條件：
 	// 1. 是整數，或有 size() 函數可轉為整數
 	// 2. 支援 operator + 合併花費
+	// Cost type, should satisfy both:
+	// 1. Either an integer, or have size() that that returns something convertable to integer
+	// 2. Supports operator + to combine costs
 	typedef ... cost_t;
 
 	// 此狀態是否為目標狀態；搜尋到此即會跳出
 	// 若永遠回傳 false 則相當於將所有能搜的部份都搜完
+	// Check for whether this state is finish state
+	// If this function always return false, it means exhaustive search
 	bool isFinish() const;
 	
 	// 取得此狀態的相鄰狀態
 	// 回傳元素為 pair{次一狀態，移動花費} 的 vector
+	// Obtain the list of next state
+	// in a vector of pair of {next state, move cost}
 	vector<pair<State, cost_t>> nextMoves() const;
 
 	// 能辨識此一狀態的值，用來判斷是否已走過
 	// 此型態要能用在 std::unordered_set<>
+	// An identifier to check for visited
+	// Should be able to use in std::unordered_set<> (ie. has std::hash<>)
 	... id() const;
 
 	// A* 用的估計函數，回傳一個**低估的**預估剩餘值
 	// 若永遠回傳 0 則 A* 變為 Dijkstra 演算法
-	int estimateRemain() const;
+	// The estimate function for A*, should **under estimate**
+	// If this function always return 0, A* degenerates into Dijkstra algorithm
+	cost_t estimateRemain() const;
 
 	// 若有此函數則在走到此狀態時會傳入目前花費呼叫之，可供除錯或紀錄
+	// If this function exists, it will be called when a state is visited
+	// Suitable for debugging and/or recording
 	void visit(const cost_t& path) const;
 };
 */
@@ -51,18 +67,18 @@ class HasVisit<C,
 > : public std::true_type {};
 
 // 若有 visit 函數則呼叫之
+// Call C.visit() if C has visit()
 template<class C>
-inline std::enable_if_t<!HasVisit<C>::value> doVisit(const C& c, const typename C::cost_t& path)
+inline void doVisit(const C& c, const typename C::cost_t& path)
 {
-}
-
-template<class C>
-inline std::enable_if_t<HasVisit<C>::value> doVisit(const C& c, const typename C::cost_t& path)
-{
-	c.visit(path);
+	if constexpr (HasVisit<C>::value)
+	{
+		c.visit(path);
+	}
 }
 
 // 將花費型態轉為整數
+// Convert cost type to integer
 template<class T>
 inline std::enable_if_t<std::is_arithmetic_v<T>, int> cost_value(const T& value)
 {
@@ -78,6 +94,7 @@ inline decltype(std::declval<T>().size(), int()) cost_value(const T& value)
 } // namespace detail
 
 // BFS 搜尋 (如淹水或走迷宮)，回傳走到目標時的花費 (0 表示走不到)
+// BFS Search, return the min cost to target (0 = unreachable)
 template<class State>
 auto BFS(const State& init)
 {
@@ -112,6 +129,8 @@ auto BFS(const State& init)
 
 // A* 演算法 (帶估計剩餘量的 BFS 搜尋)，或當估計固定回傳 0 時為 Dijkstra 演算法
 // 回傳走到目標時的花費 (0 表示走不到)
+// A* algorithm, or when estimates are always 0 becomes Dijkstra.
+// Return the min cost to target (0 = unreachable)
 template<class State>
 auto AStar(const State& init)
 {
@@ -120,8 +139,8 @@ auto AStar(const State& init)
 	typedef decltype(std::declval<State>().id()) IdType;
 	auto comparator = [](const queueItem& q1, const queueItem& q2) -> bool
 	{
-		return detail::cost_value(q1.second) + q1.first.estimateRemain()
-			> detail::cost_value(q2.second) + q2.first.estimateRemain();
+		return detail::cost_value(q1.second + q1.first.estimateRemain())
+			> detail::cost_value(q2.second + q2.first.estimateRemain());
 	};
 	std::priority_queue q{comparator, std::vector<queueItem>()};
 	q.push({init, Cost{}});
