@@ -138,11 +138,15 @@ public:
 
     Grid(TwoDContainer& source, Element_t def = {})
         : container(source), oob(def),
-          height(std::size(source)), width(std::size(source[0]))
+          h(std::size(source)), w(std::size(source[0]))
         {}
     void setOOB(Element_t def) const
     {
         oob = def;
+    }
+    bool inBound(const Coord& c) const
+    {
+        return (size_t)(c.x) < h && (size_t)(c.y) < w;
     }
     RowHelper operator[](size_t index)
     {
@@ -170,7 +174,7 @@ public:
     }
     Element_t& at(size_t x, size_t y)
     {
-        if(x >= height || y >= width)
+        if(x >= h || y >= w)
         {
             external_oob = oob;
             return external_oob;
@@ -180,16 +184,18 @@ public:
     }
     const Element_t& at(size_t x, size_t y) const
     {
-        if(x >= height || y >= width)
+        if(x >= h || y >= w)
             return oob;
         else
             return container[x][y];
     }
+    size_t width() const {return w;}
+    size_t height() const {return h;}
 private:
     TwoDContainer& container;
     mutable Element_t oob;
     mutable Element_t external_oob;
-    size_t width, height;
+    size_t w, h;
 };
 
 }
