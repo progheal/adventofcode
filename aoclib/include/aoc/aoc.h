@@ -142,10 +142,11 @@ auto readToVector(const std::string& s, char delim = 0, bool keepEmpty = false)
 }
 
 // 由字串讀入所有數字
+template<class IntType = int>
 inline auto readNumbers(const std::string& s, bool hasNegative = false)
 {
-	std::vector<int> ret;
-	int v = 0, sign = 1;
+	std::vector<IntType> ret;
+	IntType v = 0, sign = 1;
 	bool inDigit = false;
 	for(char c : s)
 	{
@@ -192,7 +193,7 @@ void readPerLineNumbers(std::istream& in, Func callback, bool hasNegative = fals
 	read<std::string>(in,
 		[&](const std::string& line)
 		{
-			callback(readNumbers(line, hasNegative));
+			callback(readNumbers<int64_t>(line, hasNegative));
 		}, '\n');
 }
 
@@ -220,13 +221,14 @@ auto readToMatrix(const std::string& s, char delim = 0, bool keepEmpty = false)
 }
 
 // 由串流讀入二維數字
+template <class IntType = int>
 inline auto readNumberMatrix(std::istream& in, bool hasNegative = false)
 {
-	std::vector<std::vector<int>> ret;
+	std::vector<std::vector<IntType>> ret;
 	read<std::string>(in,
 		[&](const std::string& line)
 		{
-			ret.push_back(readNumbers(line, hasNegative));
+			ret.push_back(readNumbers<IntType>(line, hasNegative));
 		}, '\n');
 	return ret;
 }

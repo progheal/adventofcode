@@ -139,4 +139,8 @@ And a partridge in a pear tree.)";
         (vector{
             vector{1,2,3,4}, vector{2,3,4,5}, vector{3,4,5,6}, vector{4,5,6,7}
         }));
+
+    string largeNum = "123456789012 234567890123";
+    EXPECT_EQ(AOC::readNumbers<int64_t>(largeNum),
+        (vector<int64_t>{123456789012LL, 234567890123LL}));
 }
