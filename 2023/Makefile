@@ -1,4 +1,4 @@
-#21a: STD = gnu++20
+05a: STD = gnu++20
 
 STD ?= gnu++17
 CXXFLAGS = -std=$(STD)
