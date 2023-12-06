@@ -234,10 +234,11 @@ inline auto readNumberMatrix(std::istream& in, bool hasNegative = false)
 }
 
 // 由字串讀入二維數字
+template <class IntType = int>
 inline auto readNumberMatrix(const std::string& s, bool hasNegative = false)
 {
 	std::istringstream ss {s};
-	return readNumberMatrix(ss, hasNegative);
+	return readNumberMatrix<IntType>(ss, hasNegative);
 }
 
 // 將 std::vector 的前 N 個元素取出做成 std::array
