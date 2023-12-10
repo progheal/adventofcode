@@ -26,6 +26,9 @@ struct Vector
     constexpr Vector& operator *= (int scalar) {x *= scalar; y *= scalar; return *this;}
     // Vector& operator /= (int scalar) {x /= scalar; y /= scalar; return *this;}
 
+    bool operator == (const Vector& rhs) const {return x == rhs.x && y == rhs.y;}
+    bool operator != (const Vector& rhs) const {return x != rhs.x || y != rhs.y;}
+
     constexpr Vector CW90() {return Vector{y, -x};}
     constexpr Vector CCW90() {return Vector{-y, x};}
     constexpr Vector Rotate180() {return Vector{-x, -y};}
@@ -79,6 +82,9 @@ struct Coord
     constexpr Coord& operator += (const Vector& v) {x += v.x; y += v.y; return *this;}
     constexpr Coord& operator -= (const Vector& v) {x -= v.x; y -= v.y; return *this;}
     constexpr Vector operator - (const Coord& rhs) const {return {x - rhs.x, y - rhs.y};}
+
+    bool operator == (const Coord& rhs) const {return x == rhs.x && y == rhs.y;}
+    bool operator != (const Coord& rhs) const {return x != rhs.x || y != rhs.y;}
 };
 
 inline constexpr Coord operator + (Coord c, const Vector& v) {return c += v;}
