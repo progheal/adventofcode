@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 	int64_t sum = 0;
 	AOC::readPerLine(cin, [&](const string& line)
 	{
-		vector<int64_t> row = AOC::readNumbers<int64_t>(line, true);
+		vector<int64_t> row = AOC::readToVector<int64_t>(line);
 		int64_t predict = extrapolate(row, partb);
 		sum += predict;
 	});
