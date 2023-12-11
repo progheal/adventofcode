@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	vector<Hand> hands;
 	AOC::readPerLine(cin, [&](const string& line)
 	{
-		Hand h;
+		Hand h = {};
 		array<int, 15> tally = {};
 		for(int i = 0; i < 5; i++)
 		{
