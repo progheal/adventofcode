@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iosfwd>
+#include <cmath>
 
 namespace AOC
 {
@@ -32,6 +33,11 @@ struct Vector
     constexpr Vector CW90() {return Vector{y, -x};}
     constexpr Vector CCW90() {return Vector{-y, x};}
     constexpr Vector Rotate180() {return Vector{-x, -y};}
+
+    int manhattanDistance() const {return std::abs(x) + std::abs(y);}
+    int64_t euclideanDistanceSquare() const {return (int64_t)(x)*x + (int64_t)(y)*y;}
+    double euclideanDistance() const {return std::hypot(x, y);}
+    int chebyshevDistance() const {return std::max(std::abs(x), std::abs(y));}
 };
 
 constexpr Vector Vector::NORTHWEST {-1, -1};
