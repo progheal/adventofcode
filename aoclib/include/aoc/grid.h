@@ -2,6 +2,7 @@
 
 #include <iosfwd>
 #include <cmath>
+#include <type_traits>
 
 namespace AOC
 {
@@ -209,5 +210,23 @@ private:
     mutable Element_t external_oob;
     size_t w, h;
 };
+
+template<class T>
+std::ostream& operator << (std::ostream& out, const Grid<T>& g)
+{
+    for(size_t i = 0; i < g.height(); i++)
+    {
+        for(size_t j = 0; j < g.width(); j++)
+        {
+            out << g[i][j];
+            if constexpr (!std::is_same_v<char, typename Grid<T>::Element_t>)
+            {
+                out << ' ';
+            }
+        }
+        out << '\n';
+    }
+    return out;
+}
 
 }
