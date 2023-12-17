@@ -29,6 +29,9 @@ endif
 11m: 11m.o
 	$(CXX) $^ $(LINKFLAGS) -o $@
 
+17large_a: 17large.o
+	$(CXX) $^ $(LINKFLAGS) -o $@
+
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
 
