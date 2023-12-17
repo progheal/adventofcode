@@ -187,13 +187,13 @@ void readPerLineTokenized(std::istream& in, Func callback, char delim = 0, bool 
 }
 
 // 由串流讀入每行，將每行切割為數字後呼叫 callback
-template <class Func>
+template <class IntType = int, class Func>
 void readPerLineNumbers(std::istream& in, Func callback, bool hasNegative = false)
 {
 	read<std::string>(in,
 		[&](const std::string& line)
 		{
-			callback(readNumbers<int64_t>(line, hasNegative));
+			callback(readNumbers<IntType>(line, hasNegative));
 		}, '\n');
 }
 
