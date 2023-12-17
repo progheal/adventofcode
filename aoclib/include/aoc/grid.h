@@ -31,14 +31,26 @@ struct Vector
     bool operator == (const Vector& rhs) const {return x == rhs.x && y == rhs.y;}
     bool operator != (const Vector& rhs) const {return x != rhs.x || y != rhs.y;}
 
-    constexpr Vector CW90() {return Vector{y, -x};}
-    constexpr Vector CCW90() {return Vector{-y, x};}
-    constexpr Vector Rotate180() {return Vector{-x, -y};}
+    constexpr Vector CW90() const {return Vector{y, -x};}
+    constexpr Vector CCW90() const {return Vector{-y, x};}
+    constexpr Vector Rotate180() const {return Vector{-x, -y};}
 
     int manhattanDistance() const {return std::abs(x) + std::abs(y);}
     int64_t euclideanDistanceSquare() const {return (int64_t)(x)*x + (int64_t)(y)*y;}
     double euclideanDistance() const {return std::hypot(x, y);}
     int chebyshevDistance() const {return std::max(std::abs(x), std::abs(y));}
+
+    size_t hash() const
+    {
+        if(x == 0 && y == 0) return 0;
+        int s = (x >= 0 ? x : -x) + (y >= 0 ? y : -y);
+        if(s == 1) return y == 0 ? 2 - x : 3 - y;
+        int b = s * (s-1) * 2 + 1;
+        if(x > 0 && y >= 0) return b + y;
+        else if(x <= 0 && y > 0) return b + s - x;
+        else if(x < 0 && y <= 0) return b + s*2 - y;
+        else return b + s*3 + x;
+    }
 };
 
 constexpr Vector Vector::NORTHWEST {-1, -1};
@@ -92,6 +104,11 @@ struct Coord
 
     bool operator == (const Coord& rhs) const {return x == rhs.x && y == rhs.y;}
     bool operator != (const Coord& rhs) const {return x != rhs.x || y != rhs.y;}
+
+    size_t hash() const
+    {
+        return (size_t)(x * (1LL << 32) + y);
+    }
 };
 
 inline constexpr Coord operator + (Coord c, const Vector& v) {return c += v;}
@@ -111,7 +128,7 @@ struct CoordOrder
     }
 };
 
-template<class TwoDContainer>
+template<class TwoDContainer = std::vector<std::string>>
 class Grid
 {
     class RowHelper
@@ -229,4 +246,12 @@ std::ostream& operator << (std::ostream& out, const Grid<T>& g)
     return out;
 }
 
+}
+
+namespace std
+{
+template<> struct hash<AOC::Coord>
+{ size_t operator ()(const AOC::Coord& c) const {return c.hash();} };
+template<> struct hash<AOC::Vector>
+{ size_t operator ()(const AOC::Vector& v) const {return v.hash();} };
 }
