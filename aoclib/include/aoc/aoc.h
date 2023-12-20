@@ -141,6 +141,16 @@ auto readToVector(const std::string& s, char delim = 0, bool keepEmpty = false)
 	return readToVector<T>(ss, delim, keepEmpty);
 }
 
+// 由串流讀入每行，將每行轉換為 T 後存為 std::vector<T> 回傳
+// 若 T 為自訂結構則需自行增加 AOC::convert<T>(const string&) 之特化
+template <class T>
+auto readPerLineToVector(std::istream& in)
+{
+	std::vector<T> ret;
+	readPerLine(in, [&](const std::string& s){ret.push_back(convert<T>(s));});
+	return ret;
+}
+
 // 由字串讀入所有數字
 template<class IntType = int>
 inline auto readNumbers(const std::string& s, bool hasNegative = false)
