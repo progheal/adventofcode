@@ -219,6 +219,14 @@ public:
         else
             return container[x][y];
     }
+    Coord find_first_of(Element_t elem) const
+    {
+        for(size_t i = 0; i < h; i++)
+            for(size_t j = 0; j < w; j++)
+                if(container[i][j] == elem)
+                    return Coord{(int)i, (int)j};
+        return Coord{-1, -1};
+    }
     size_t width() const {return w;}
     size_t height() const {return h;}
 private:
