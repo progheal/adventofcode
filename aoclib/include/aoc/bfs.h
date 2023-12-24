@@ -109,8 +109,9 @@ auto BFS(const State& init)
 	{
 		auto [s, n] = q.front();
 		q.pop();
-		if(visited.count(s.id()) > 0) continue;
-		visited.insert(s.id());
+		auto id = s.id();
+		if(visited.count(id) > 0) continue;
+		visited.insert(id);
 		detail::doVisit(s, n);
 		for(auto [ns, mv] : s.nextMoves())
 		{
@@ -150,8 +151,9 @@ auto AStar(const State& init)
 	{
 		auto [s, n] = q.top();
 		q.pop();
-		if(visited.count(s.id()) > 0) continue;
-		visited.insert(s.id());
+		auto id = s.id();
+		if(visited.count(id) > 0) continue;
+		visited.insert(id);
 		detail::doVisit(s, n);
 		for(auto [ns, mv] : s.nextMoves())
 		{

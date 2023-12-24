@@ -38,6 +38,9 @@ endif
 21b: 21b.o
 	$(CXX) $^ $(LINKFLAGS) -o $@
 
+23b: 23b.o
+	$(CXX) $^ $(LINKFLAGS) -o $@
+
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
 

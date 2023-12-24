@@ -34,6 +34,7 @@ struct Vector
     constexpr Vector CW90() const {return Vector{y, -x};}
     constexpr Vector CCW90() const {return Vector{-y, x};}
     constexpr Vector Rotate180() const {return Vector{-x, -y};}
+    constexpr Vector operator - () const {return Vector{-x, -y};}
 
     int manhattanDistance() const {return std::abs(x) + std::abs(y);}
     int64_t euclideanDistanceSquare() const {return (int64_t)(x)*x + (int64_t)(y)*y;}
