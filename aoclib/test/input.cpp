@@ -144,3 +144,17 @@ And a partridge in a pear tree.)";
     EXPECT_EQ(AOC::readNumbers<int64_t>(largeNum),
         (vector<int64_t>{123456789012LL, 234567890123LL}));
 }
+
+TEST(InputTest, TakeFirst)
+{
+    vector<int> v = {1, 2, 3, 4, 5};
+    auto [x, y] = AOC::takeFirst<2>(v);
+    EXPECT_EQ(x, 1);
+    EXPECT_EQ(y, 2);
+
+    int p, q, r;
+    std::tie(p, q, r) = AOC::takeFirst<3>(v);
+    EXPECT_EQ(p, 1);
+    EXPECT_EQ(q, 2);
+    EXPECT_EQ(r, 3);
+}

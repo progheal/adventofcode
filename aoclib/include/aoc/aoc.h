@@ -251,16 +251,20 @@ inline auto readNumberMatrix(const std::string& s, bool hasNegative = false)
 	return readNumberMatrix<IntType>(ss, hasNegative);
 }
 
-// 將 std::vector 的前 N 個元素取出做成 std::array
+// 回傳一個 proxy tuple 可以取得 vector 的前 N 個值
 // 使其可以使用在 std::tie 或 structured binding
+// 此 tuple 元素是指向原 vector 元素的參考, 較先前取出元素包為 std::array 減少一次複製
+template<class T, std::size_t... I>
+auto takeFirstHelper(const std::vector<T>& v, std::index_sequence<I...>)
+{
+	return std::tuple(std::ref(v[I])...);
+}
 template<int N, class T>
 auto takeFirst(const std::vector<T>& v)
 {
     if(v.size() < N)
         throw std::length_error("vector should have at least " + std::to_string(N) + " values.");
-    std::array<T, N> arr;
-	std::copy_n(v.begin(), N, arr.begin());
-	return arr;
+	return takeFirstHelper(v, std::make_index_sequence<N>{});
 }
 
 }
