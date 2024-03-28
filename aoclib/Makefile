@@ -19,14 +19,14 @@ all: ${BUILD}/libaoc.a test
 ${BUILD}:
 	mkdir ${BUILD}
 
-${BUILD}/libaoc.a: ${BUILD}/ocr.o ${BUILD}/util.o
+${BUILD}/libaoc.a: ${BUILD}/ocr.o ${BUILD}/util.o ${BUILD}/ap.o
 	$(AR) cr $@ $^
 
 ${BUILD}/%.o: ${SRC}/%.cpp | ${BUILD}
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
 
 LINKFLAGS = -L${BUILD}
-TESTS = grid input ocr rotate tokenize
+TESTS = ap grid input ocr rotate tokenize
 LIBRARIES = ${BUILD}/libaoc.a
 LIBARGS = -laoc -lgtest -lgmock -lgtest_main
 
@@ -37,8 +37,8 @@ test: ${BUILD}/test/testall
 ${BUILD}/test:
 	mkdir ${BUILD}/test
 
-${BUILD}/test/testall: ${TESTOBJ}
-	$(CXX) $(LINKFLAGS) $^ $(LIBARGS) -o $@
+${BUILD}/test/testall: ${TESTOBJ} ${BUILD}/libaoc.a
+	$(CXX) $(LINKFLAGS) ${TESTOBJ} $(LIBARGS) -o $@
 
 ${BUILD}/test/%.o: ${TEST}/%.cpp | ${BUILD}/test
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
