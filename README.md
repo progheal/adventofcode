@@ -4,7 +4,7 @@
 
 * [2022 文章](https://blog.cruciferslab.net/?p=1153)
 * [2023 文章](https://blog.cruciferslab.net/?p=1587)
-* 2024 文章
+* [2024 文章](https://blog.cruciferslab.net/?p=1831)
 
 `aoclib` 是一些題目之間的公用函式：
 
