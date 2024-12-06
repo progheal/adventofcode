@@ -132,35 +132,16 @@ struct CoordOrder
 template<class TwoDContainer = std::vector<std::string>>
 class Grid
 {
+    template<bool Modifiable>
     class RowHelper
     {
-        Grid* parent;
+        typedef std::conditional_t<Modifiable, Grid*, const Grid*> pGrid_t;
+        pGrid_t parent;
         size_t row;
     public:
-        RowHelper(Grid* p, size_t r) : parent(p), row(r) {}
-        auto& operator[](size_t index)
-        {
-            return parent->at(row, index);
-        }
-        auto& at(size_t index)
-        {
-            return parent->at(row, index);
-        }
-    };
-    class ConstRowHelper
-    {
-        const Grid* parent;
-        size_t row;
-    public:
-        ConstRowHelper(const Grid* p, size_t r) : parent(p), row(r) {}
-        const auto& operator[](size_t index)
-        {
-            return parent->at(row, index);
-        }
-        const auto& at(size_t index)
-        {
-            return parent->at(row, index);
-        }
+        RowHelper(pGrid_t p, size_t r) : parent(p), row(r) {}
+        auto& operator[](size_t index) const {return parent->at(row, index);}
+        auto& at(size_t index) const {return parent->at(row, index);}
     };
 public:
     typedef std::remove_reference_t<
@@ -179,30 +160,12 @@ public:
     {
         return (size_t)(c.x) < h && (size_t)(c.y) < w;
     }
-    RowHelper operator[](size_t index)
-    {
-        return RowHelper(this, index);
-    }
-    RowHelper at(size_t index)
-    {
-        return RowHelper(this, index);
-    }
-    ConstRowHelper operator [](size_t index) const
-    {
-        return ConstRowHelper(this, index);
-    }
-    ConstRowHelper at(size_t index) const
-    {
-        return ConstRowHelper(this, index);
-    }
-    Element_t& operator[](const Coord& c)
-    {
-        return at(c.x, c.y);
-    }
-    const Element_t& operator[](const Coord& c) const
-    {
-        return at(c.x, c.y);
-    }
+    const auto operator[](size_t index) {return RowHelper<true>(this, index);}
+    const auto at(size_t index) {return RowHelper<true>(this, index);}
+    const auto operator [](size_t index) const {return RowHelper<false>(this, index);}
+    const auto at(size_t index) const {return RowHelper<false>(this, index);}
+    Element_t& operator[](const Coord& c) {return at(c.x, c.y);}
+    const Element_t& operator[](const Coord& c) const {return at(c.x, c.y);}
     Element_t& at(size_t x, size_t y)
     {
         if(x >= h || y >= w)
@@ -220,21 +183,63 @@ public:
         else
             return container[x][y];
     }
+    template<class Func>
+    Coord find_if(Func f) const
+    {
+        for(auto p = begin(); p != end(); ++p)
+            if(f(*p))
+                return p;
+        return Coord{-1, -1};
+    }
     Coord find_first_of(Element_t elem) const
     {
-        for(size_t i = 0; i < h; i++)
-            for(size_t j = 0; j < w; j++)
-                if(container[i][j] == elem)
-                    return Coord{(int)i, (int)j};
-        return Coord{-1, -1};
+        return find_if([elem](Element_t e){return e == elem;});
     }
     size_t width() const {return w;}
     size_t height() const {return h;}
+    auto begin() {return PositionIterator<true>(this, {0, 0});}
+    auto end() {return PositionIterator<true>(this, {-1, -1});}
+    auto begin() const {return PositionIterator<false>(this, {0, 0});}
+    auto end() const {return PositionIterator<false>(this, {-1, -1});}
 private:
     TwoDContainer& container;
     mutable Element_t oob;
     mutable Element_t external_oob;
     size_t w, h;
+    template<bool Modifiable>
+    class PositionIterator
+    {
+        typedef std::conditional_t<Modifiable, Grid*, const Grid*> pGrid_t;
+        pGrid_t parent;
+        AOC::Coord pos;
+        void inc()
+        {
+            pos.y++;
+            if(pos.y >= parent->width()) {pos.x++; pos.y = 0;}
+        }
+    public:
+        typedef std::ptrdiff_t difference_type;
+        typedef std::conditional_t<Modifiable, Grid::Element_t, const Grid::Element_t> value_type;
+        typedef std::conditional_t<Modifiable, Grid::Element_t*, const Grid::Element_t*> pointer;
+        typedef std::conditional_t<Modifiable, Grid::Element_t&, const Grid::Element_t&> reference;
+        typedef std::forward_iterator_tag iterator_category;
+
+        PositionIterator(pGrid_t p, size_t x, size_t y): parent(p), pos(x, y) {}
+        PositionIterator(pGrid_t p, const AOC::Coord& c): parent(p), pos(c) {}
+        operator bool () const {return parent->inBound(pos);}
+        operator AOC::Coord() const {return pos;}
+        bool operator == (const PositionIterator& it) const
+        {
+            if(!*this && !it) return true;
+            if(!*this || !it) return false;
+            return this->pos == it.pos;
+        }
+        bool operator != (const PositionIterator& it) const {return !(operator ==(it));}
+        auto& operator * () const {return parent->at(pos.x, pos.y);}
+        auto& operator -> () const {return &parent->at(pos.x, pos.y);}
+        PositionIterator& operator ++ () { inc(); return *this; }
+        PositionIterator operator ++ (int) { auto ret = *this; inc(); return ret; }
+    };
 };
 
 template<class T>

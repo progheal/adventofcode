@@ -189,6 +189,23 @@ TEST(GridTest, GridRead)
 
 TEST(GridTest, GridWrite)
 {
+    vector<string> pic {
+        "123",
+        "456",
+        "789"
+    };
+
+    AOC::Grid g(pic, ' ');
+
+    *(g.begin()) = 'A';
+    g[1][1] = 'E';
+    g[AOC::Coord{2,2}] = 'I';
+
+    EXPECT_EQ(pic, (vector<string>{"A23", "4E6", "78I"}));
+}
+
+TEST(GridTest, GridIterate)
+{
     vector<string> maze {
         "ABCDEFGHI",
         "JKLMNOPQR",
@@ -200,6 +217,57 @@ TEST(GridTest, GridWrite)
     };
 
     AOC::Grid g(maze, '#');
-    
-    
+    string s;
+    for(auto ch : g)
+    {
+        s += ch;
+    }
+    EXPECT_EQ(s, "ABCDEFGHIJKLMNOPQRSTUVWXYZ@abcdefghijklmnopqrstuvwxyz$123456789");
+}
+
+TEST(GridTest, Find)
+{
+    vector<string> maze {
+        "ABCDEFGHI",
+        "JKLMNOPQR",
+        "STUVWXYZ@",
+        "abcdefghi",
+        "jklmnopqr",
+        "stuvwxyz$",
+        "123456789"
+    };
+
+    AOC::Grid g(maze, '#');
+
+    EXPECT_EQ(g.find_first_of('p'), (AOC::Coord{4, 6}));
+    EXPECT_EQ(g.find_if([](char c){return c % 32 == 5;}), (AOC::Coord{0, 4}));
+}
+
+TEST(GridTest, Constness)
+{
+    vector<string> maze {
+        "ABCDEFGHI",
+        "JKLMNOPQR",
+        "STUVWXYZ@",
+        "abcdefghi",
+        "jklmnopqr",
+        "stuvwxyz$",
+        "123456789"
+    };
+
+    const AOC::Grid g(maze, '#');
+    AOC::Coord c {3, 4};
+
+    EXPECT_EQ(g[0][0], 'A');
+    EXPECT_EQ(g[2][3], 'V');
+    EXPECT_EQ(g[c], 'e');
+    EXPECT_EQ(g[6][8], '9');
+    EXPECT_EQ(g[-4][3], '#');
+    EXPECT_EQ(g[8][3], '#');
+    EXPECT_EQ(g[3][-5], '#');
+    EXPECT_EQ(g[5][12], '#');
+    EXPECT_EQ(g[-6][-4], '#');
+    EXPECT_EQ(g[-2][11], '#');
+    EXPECT_EQ(g[9][-3], '#');
+    EXPECT_EQ(g[13][14], '#');
 }
