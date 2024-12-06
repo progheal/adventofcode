@@ -255,6 +255,32 @@ std::ostream& operator << (std::ostream& out, const Grid<T>& g)
     return out;
 }
 
+// 移動物體，有位置及方向
+struct Mob
+{
+    AOC::Coord pos;
+    AOC::Vector dir;
+    Mob(const AOC::Coord& p, const AOC::Vector& d): pos(p), dir(d) {}
+    operator AOC::Coord() const {return pos;}
+    operator AOC::Vector() const {return dir;}
+    bool operator == (const Mob& mob) const {return pos == mob.pos && dir == mob.dir;}
+    bool operator != (const Mob& mob) const {return !(operator ==(mob));}
+    void move() {pos += dir;}
+    AOC::Coord ahead() {return pos + dir;}
+    void CW90() {dir = dir.CW90();}
+    void CCW90() {dir = dir.CCW90();}
+    void Rotate180() {dir = dir.Rotate180();}
+    size_t hash() const
+    {
+        return pos.hash() * 9 + dir.hash();
+    }
+};
+
+std::ostream& operator << (std::ostream& out, const Mob& m)
+{
+    return out << m.pos << m.dir;
+}
+
 }
 
 namespace std
@@ -263,4 +289,6 @@ template<> struct hash<AOC::Coord>
 { size_t operator ()(const AOC::Coord& c) const {return c.hash();} };
 template<> struct hash<AOC::Vector>
 { size_t operator ()(const AOC::Vector& v) const {return v.hash();} };
+template<> struct hash<AOC::Mob>
+{ size_t operator ()(const AOC::Mob& m) const {return m.hash();} };
 }
