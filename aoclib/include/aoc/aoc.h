@@ -54,43 +54,171 @@ T convert(const std::string& s)
 // 判斷是否 whitespace；此為未指定分界字元時的預設分界
 inline bool isWhitespace(char c) {return c == ' ' || c == '\t' || c == '\n';}
 
+const char DELIM_NONDIGIT = -1;
+
+namespace detail
+{
+
+// 讀取的 iterator 類，實際讀取在此發生
+template<class T>
+class ReaderIterator
+{
+	std::istream* in;
+	char delim;
+	bool keepEmpty;
+	std::optional<T> value;
+	class PostIncrementHolder
+	{
+		T value;
+	public:
+		PostIncrementHolder(T value): value(value) {}
+		T operator *() {return value;}
+	};
+public:
+	typedef std::ptrdiff_t difference_type;
+	typedef const T value_type;
+	typedef const T* pointer;
+	typedef const T& reference;
+	// input iterator 限定只有 single pass
+	typedef std::input_iterator_tag iterator_category;
+
+	// 一般狀態
+	ReaderIterator(std::istream& in, char delim = 0, bool keepEmpty = false)
+		: in(&in), delim(delim), keepEmpty(keepEmpty), value(std::nullopt) {get();}
+	// 結束狀態 (預設 C++17 故無法以不同類別做為 sentinel)
+	ReaderIterator()
+		: in(nullptr), delim(), keepEmpty(), value() {}
+
+	bool operator != (const ReaderIterator& it) const
+	{
+		if(!value && !it.value) return false;
+		if(!value) return it != *this;
+		if(!it.value) return value.has_value();
+		return true;
+	}
+	bool operator == (const ReaderIterator& it) const {return !(operator !=(it));}
+	const T& operator *() const
+	{
+		return *value;
+	}
+	const T* operator ->() const
+	{
+		return value.operator->();
+	}
+	ReaderIterator& operator ++ ()
+	{
+		get();
+		return *this;
+	}
+	PostIncrementHolder operator ++(int)
+	{
+		PostIncrementHolder h {*value};
+		get();
+		return h;
+	}
+private:
+	// 讀取下一個值並存起來
+	void get()
+	{
+		std::string token;
+		if constexpr (std::is_integral_v<T>)
+		{
+			// 僅截取數字
+			if(delim == DELIM_NONDIGIT)
+			{
+				char c;
+				while(c = in->get(), !in->fail())
+				{
+					if(c >= '0' && c <= '9')
+						token += c;
+					else if(keepEmpty && token == "" && c == '-') // keepEmpty 在此覆載為 hasNegative
+						token += c;
+					else if(token != "")
+					{
+						in->unget();
+						break;
+					}
+				}
+				if(token == "")
+					value = std::nullopt;
+				else
+					value = convert<T>(token);
+				return;
+			}
+		}
+		if(delim != 0)
+		{
+			// 分界字元非空時使用 getline 機制分割，並去掉頭尾空白
+			do
+			{
+				std::getline(*in, token, delim);
+				if(in->fail())
+				{
+					value = std::nullopt;
+					return;
+				}
+			} while(!keepEmpty && token == "");
+			token = doTrim(token);
+			value = convert<T>(token);
+		}
+		else
+		{
+			// 否則手動分割
+			char c;
+			while(c = in->get(), !in->fail())
+			{
+				if(!isWhitespace(c))
+					token += c;
+				else
+				{
+					if(keepEmpty || token != "") break;
+					token = "";
+				}
+			}
+			if(keepEmpty || token != "")
+				value = convert<T>(token);
+			else
+				value = std::nullopt;
+		}
+	}
+	static std::string doTrim(std::string token)
+	{
+		size_t l = 0, r = token.size() - 1;
+		while(r > 0 && isWhitespace(token[r])) r--;
+		while(l <= r && isWhitespace(token[l])) l++;
+		return token.substr(l, r-l+1);
+	}
+};
+
+} // namespace AOC::detail
+
+// 讀取的外包裝類，使其可用在 range based for 中
+template<class T>
+class Reader
+{
+public:
+	Reader(std::istream& in, char delim = 0, bool keepEmpty = false)
+		: ss(), in(in), delim(delim), keepEmpty(keepEmpty) {}
+	Reader(std::string s, char delim = 0, bool keepEmpty = false)
+		: ss(s), in(ss), delim(delim), keepEmpty(keepEmpty) {}
+	auto begin() {return detail::ReaderIterator<T>(in, delim, keepEmpty);}
+	auto end() {return detail::ReaderIterator<T>();}
+private:
+	std::istringstream ss;
+	std::istream& in;
+	char delim;
+	bool keepEmpty;
+};
+
 // 由串流讀取資料，並將每個元素之字串代入 callback 呼叫
 // delim 為分界字元，0 表 whitespace
 // keepEmpty 指定是否留下空元素
 template <class T, class Func>
 void read(std::istream& in, Func callback, char delim = 0, bool keepEmpty = false)
 {
-	std::string token;
-	if(delim != 0)
+	for(const T& value : Reader<T>(in, delim, keepEmpty))
 	{
-		// 分界字元非空時使用 getline 機制分割，並去掉頭尾空白
-		while(getline(in, token, delim), !in.fail())
-		{
-			if(!keepEmpty && token == "") continue;
-			size_t l = 0, r = token.size() - 1;
-			while(r > 0 && isWhitespace(token[r])) r--;
-			while(l <= r && isWhitespace(token[l])) l++;
-			token = token.substr(l, r-l+1);
-			callback(convert<T>(token));
-		}
-	}
-	else
-	{
-		// 否則手動分割
-		char c;
-		while(c = in.get(), !in.fail())
-		{
-			if(isWhitespace(c))
-			{
-				if(keepEmpty || token != "") callback(convert<T>(token));
-				token = "";
-			}
-			else
-			{
-				token += c;
-			}
-		}
-		if(keepEmpty || token != "") callback(convert<T>(token));
+		callback(value);
 	}
 }
 
@@ -98,8 +226,10 @@ void read(std::istream& in, Func callback, char delim = 0, bool keepEmpty = fals
 template <class T, class Func>
 void read(const std::string& s, Func callback, char delim = 0, bool keepEmpty = false)
 {
-	std::istringstream ss {s};
-	read<T>(ss, callback, delim, keepEmpty);
+	for(const T& value : Reader<T>(s, delim, keepEmpty))
+	{
+		callback(value);
+	}
 }
 
 // 讀取一個二維圖形輸入，例如迷宮
@@ -115,12 +245,36 @@ inline std::vector<std::string> readPicture(std::istream& in)
 	return ret;
 }
 
+// 每行讀取，固定分界字元為 '\n' 及回傳型態為字串
+class LineReader : public Reader<std::string>
+{
+public:
+	LineReader(std::istream& in, bool keepEmpty = false)
+		: Reader(in, '\n', keepEmpty) {}
+	LineReader(std::string s, bool keepEmpty = false)
+		: Reader(s, '\n', keepEmpty) {}
+};
+
+// 只讀數字
+template<class IntType>
+class NumberReader : public Reader<IntType>
+{
+public:
+	NumberReader(std::istream& in, bool hasNegative = false)
+		: Reader<IntType>(in, DELIM_NONDIGIT, hasNegative) {}
+	NumberReader(std::string s, bool hasNegative = false)
+		: Reader<IntType>(s, DELIM_NONDIGIT, hasNegative) {}
+};
+
 // 設定以換行切割，用在輸入以行為單位
 // keepEmpty 在此表保留空行
 template <class Func>
 void readPerLine(std::istream& in, Func callback, bool keepEmpty = false)
 {
-	read<std::string>(in, callback, '\n', keepEmpty);
+	for(auto& line : LineReader(in, keepEmpty))
+	{
+		callback(line);
+	}
 }
 
 // 由串流讀入 std::vector<T> 並回傳
@@ -128,7 +282,10 @@ template <class T>
 std::vector<T> readToVector(std::istream& in, char delim = 0, bool keepEmpty = false)
 {
 	std::vector<T> ret;
-	read<T>(in, [&](const T& value){ret.push_back(value);}, delim, keepEmpty);
+	for(const T& value : Reader<T>(in, delim, keepEmpty))
+	{
+		ret.push_back(value);
+	}
 	return ret;
 }
 
@@ -137,8 +294,12 @@ std::vector<T> readToVector(std::istream& in, char delim = 0, bool keepEmpty = f
 template <class T>
 auto readToVector(const std::string& s, char delim = 0, bool keepEmpty = false)
 {
-	std::istringstream ss {s};
-	return readToVector<T>(ss, delim, keepEmpty);
+	std::vector<T> ret;
+	for(const T& value : Reader<T>(s, delim, keepEmpty))
+	{
+		ret.push_back(value);
+	}
+	return ret;
 }
 
 // 由串流讀入每行，將每行轉換為 T 後存為 std::vector<T> 回傳
@@ -147,7 +308,10 @@ template <class T>
 auto readPerLineToVector(std::istream& in)
 {
 	std::vector<T> ret;
-	readPerLine(in, [&](const std::string& s){ret.push_back(convert<T>(s));});
+	for(const auto& line : LineReader(in))
+	{
+		ret.push_back(convert<T>(line));
+	}
 	return ret;
 }
 
@@ -156,31 +320,9 @@ template<class IntType = int>
 inline auto readNumbers(const std::string& s, bool hasNegative = false)
 {
 	std::vector<IntType> ret;
-	IntType v = 0, sign = 1;
-	bool inDigit = false;
-	for(char c : s)
+	for(auto& v : NumberReader<IntType>(s, hasNegative))
 	{
-		if(c >= '0' && c <= '9')
-		{
-			inDigit = true;
-			v = v * 10 + (c - '0');
-		}
-		else if(c == '-' && hasNegative)
-		{
-			inDigit = true;
-			sign = -1;
-		}
-		else if(inDigit)
-		{
-			ret.push_back(v * sign);
-			v = 0;
-			sign = 1;
-			inDigit = false;
-		}
-	}
-	if(inDigit)
-	{
-		ret.push_back(v * sign);
+		ret.push_back(v);
 	}
 	return ret;
 }
@@ -189,22 +331,20 @@ inline auto readNumbers(const std::string& s, bool hasNegative = false)
 template <class Func>
 void readPerLineTokenized(std::istream& in, Func callback, char delim = 0, bool keepEmpty = false)
 {
-	read<std::string>(in,
-		[&](const std::string& line)
-		{
-			callback(readToVector<std::string>(line, delim));
-		}, '\n', keepEmpty);
+	for(const auto& line : LineReader(in, keepEmpty))
+	{
+		callback(readToVector<std::string>(line, delim));
+	}
 }
 
 // 由串流讀入每行，將每行切割為數字後呼叫 callback
 template <class IntType = int, class Func>
 void readPerLineNumbers(std::istream& in, Func callback, bool hasNegative = false)
 {
-	read<std::string>(in,
-		[&](const std::string& line)
-		{
-			callback(readNumbers<IntType>(line, hasNegative));
-		}, '\n');
+	for(const auto& line : LineReader(in))
+	{
+		callback(readNumbers<IntType>(line, hasNegative));
+	}
 }
 
 // 由串流讀入二維矩陣
@@ -212,13 +352,13 @@ template <class T>
 std::vector<std::vector<T>> readToMatrix(std::istream& in, char delim = 0, bool keepEmpty = false)
 {
 	std::vector<std::vector<T>> ret;
-	read<std::string>(in,
-		[&](const std::string& line)
-		{
-			std::vector<T> row;
-			read<T>(line, [&](const T& value){row.push_back(value);}, delim);
-			ret.push_back(std::move(row));
-		}, '\n', keepEmpty);
+	for(const auto& line : LineReader(in, keepEmpty))
+	{
+		std::vector<T> row;
+		for(const T& value : Reader<T>(line, delim))
+			row.push_back(value);
+		ret.push_back(std::move(row));
+	}
 	return ret;
 }
 
@@ -226,8 +366,15 @@ std::vector<std::vector<T>> readToMatrix(std::istream& in, char delim = 0, bool 
 template <class T>
 auto readToMatrix(const std::string& s, char delim = 0, bool keepEmpty = false)
 {
-	std::istringstream ss {s};
-	return readToMatrix<T>(ss, delim, keepEmpty);
+	std::vector<std::vector<T>> ret;
+	for(const auto& line : LineReader(s, keepEmpty))
+	{
+		std::vector<T> row;
+		for(const T& value : Reader<T>(line, delim))
+			row.push_back(value);
+		ret.push_back(std::move(row));
+	}
+	return ret;
 }
 
 // 由串流讀入二維數字
@@ -235,11 +382,10 @@ template <class IntType = int>
 inline auto readNumberMatrix(std::istream& in, bool hasNegative = false)
 {
 	std::vector<std::vector<IntType>> ret;
-	read<std::string>(in,
-		[&](const std::string& line)
-		{
-			ret.push_back(readNumbers<IntType>(line, hasNegative));
-		}, '\n');
+	for(const auto& line : LineReader(in))
+	{
+		ret.push_back(readNumbers<IntType>(line, hasNegative));
+	}
 	return ret;
 }
 
@@ -247,8 +393,12 @@ inline auto readNumberMatrix(std::istream& in, bool hasNegative = false)
 template <class IntType = int>
 inline auto readNumberMatrix(const std::string& s, bool hasNegative = false)
 {
-	std::istringstream ss {s};
-	return readNumberMatrix<IntType>(ss, hasNegative);
+	std::vector<std::vector<IntType>> ret;
+	for(const auto& line : LineReader(s))
+	{
+		ret.push_back(readNumbers<IntType>(line, hasNegative));
+	}
+	return ret;
 }
 
 // 回傳一個 proxy tuple 可以取得 vector 的前 N 個值
