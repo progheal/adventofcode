@@ -29,4 +29,7 @@ endif
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
 
+09b: 09b.o
+	$(CXX) $^ $(LINKFLAGS) -o $@
+
 .NOTINTERMEDIATE: %a
