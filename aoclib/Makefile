@@ -10,9 +10,11 @@ CXXFLAGS += -I${INCLUDE}
 
 ifdef DEBUG
 	CXXFLAGS += -g -DDEBUG=$(DEBUG)
+else
+	CXXFLAGS += -O3
 endif
 
-.PHONY: all test
+.PHONY: all test clean
 
 all: ${BUILD}/libaoc.a test
 
@@ -42,3 +44,6 @@ ${BUILD}/test/testall: ${TESTOBJ} ${BUILD}/libaoc.a
 
 ${BUILD}/test/%.o: ${TEST}/%.cpp | ${BUILD}/test
 	$(CXX) $(CXXFLAGS) $^ -c -o $@
+
+clean:
+	rm -rf ${BUILD}
