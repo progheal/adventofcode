@@ -228,6 +228,7 @@ private:
         PositionIterator(pGrid_t p, const AOC::Coord& c): parent(p), pos(c) {}
         operator bool () const {return parent->inBound(pos);}
         operator AOC::Coord() const {return pos;}
+        AOC::Coord position() const {return pos;}
         bool operator == (const PositionIterator& it) const
         {
             if(!*this && !it) return true;
