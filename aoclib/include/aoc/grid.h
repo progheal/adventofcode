@@ -271,7 +271,14 @@ struct Mob
     operator AOC::Vector() const {return dir;}
     bool operator == (const Mob& mob) const {return pos == mob.pos && dir == mob.dir;}
     bool operator != (const Mob& mob) const {return !(operator ==(mob));}
-    void move() {pos += dir;}
+    void move(int time = 1) {pos += dir * time;}
+    void wrap(int Xmin, int Xmax, int Ymin, int Ymax)
+    {
+        pos.x = (pos.x - Xmin) % (Xmax - Xmin + 1) + Xmin;
+        if(pos.x < Xmin) pos.x += Xmax - Xmin + 1;
+        pos.y = (pos.y - Ymin) % (Ymax - Ymin + 1) + Ymin;
+        if(pos.y < Ymin) pos.y += Ymax - Ymin + 1;
+    }
     AOC::Coord ahead() {return pos + dir;}
     void CW90() {dir = dir.CW90();}
     void CCW90() {dir = dir.CCW90();}
