@@ -16,7 +16,7 @@ ifdef D
   CXXFLAGS += $(D)
 endif
 
-#00a: LINKFLAGS += -L../aoclib/build -laoc
+19a: LINKFLAGS += -L../aoclib/build -laoc
 
 .SUFFIXES:
 
