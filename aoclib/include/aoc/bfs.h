@@ -93,6 +93,34 @@ inline decltype(std::declval<T>().size(), int()) cost_value(const T& value)
 
 } // namespace detail
 
+// 路徑類別，可作為搜尋的 cost_t 使用
+// Path class, can be used as cost_t in state class
+template<class Element>
+class Path
+{
+	std::vector<Element> path;
+public:
+	Path() : path() {}
+	Path(const Element& c) : path({c}) {}
+	Path(const std::vector<Element>& p) : path(p) {}
+	operator int() {return (int)path.size();}
+	operator size_t() {return path.size();}
+	operator std::vector<Element>() {return path;}
+	size_t size() {return path.size();}
+	auto begin() const {return path.begin();}
+	auto end() const {return path.end();}
+	Path& operator += (const Path& p)
+	{
+		for(auto& c : p.path) path.push_back(c);
+		return *this;
+	}
+	Path operator + (const Path& p) const
+	{
+		Path ret = *this;
+		return ret += p;
+	}
+};
+
 // BFS 搜尋 (如淹水或走迷宮)，回傳走到目標時的花費 (0 表示走不到)
 // BFS Search, return the min cost to target (0 = unreachable)
 template<class State>
