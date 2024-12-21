@@ -87,9 +87,14 @@ inline constexpr Vector operator * (Vector v, int scalar) {return v *= scalar;}
 inline constexpr Vector operator * (int scalar, Vector v) {return v *= scalar;}
 // inline constexpr Vector operator / (Vector v, int scalar) {return v /= scalar;}
 
+std::string to_string(const Vector& v)
+{
+    return "<" + std::to_string(v.x) + "," + std::to_string(v.y) + ">";
+}
+
 std::ostream& operator << (std::ostream& out, const Vector& v)
 {
-    return out << '<' << v.x << ',' << v.y << '>'; 
+    return out << to_string(v); 
 }
 
 // 座標
@@ -116,9 +121,14 @@ inline constexpr Coord operator + (Coord c, const Vector& v) {return c += v;}
 inline constexpr Coord operator + (const Vector& v, Coord c) {return c += v;} 
 inline constexpr Coord operator - (Coord c, const Vector& v) {return c -= v;}
 
+std::string to_string(const Coord& c)
+{
+    return "(" + std::to_string(c.x) + "," + std::to_string(c.y) + ")";
+}
+
 std::ostream& operator << (std::ostream& out, const Coord& c)
 {
-    return out << '(' << c.x << ',' << c.y << ')'; 
+    return out << to_string(c);
 }
 
 struct CoordOrder
@@ -289,9 +299,14 @@ struct Mob
     }
 };
 
+std::string to_string(const Mob& m)
+{
+    return to_string(m.pos) + to_string(m.dir);
+}
+
 std::ostream& operator << (std::ostream& out, const Mob& m)
 {
-    return out << m.pos << m.dir;
+    return out << to_string(m);
 }
 
 }
