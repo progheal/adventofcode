@@ -42,6 +42,23 @@ public:
     }
 };
 
+template<class Callable, class R, class... Args>
+class StringKeyCache
+{
+    Callable func;
+    mutable std::unordered_map<std::string, R> cache;
+public:
+    StringKeyCache(Callable f): func(f) {}
+    R operator() (const Args&... args) const
+    {
+        using std::to_string;
+        std::string cacheKey = ((to_string(args) + "\xff") + ...);
+        auto p = cache.find(cacheKey);
+        if(p != cache.end()) return p->second;
+        return cache[cacheKey] = func(args...);
+    }
+};
+
 template<class Callable>
 class RecursiveCache
 {
@@ -86,6 +103,8 @@ template<class Obj, class R, class A>
 Cache1<Obj, R, A> cache_helper_obj(Obj obj, R (Obj::*)(A) const);
 template<class Obj, class R, class A1, class A2>
 Cache2<Obj, R, A1, A2> cache_helper_obj(Obj obj, R (Obj::*)(A1,A2) const);
+template<class R, class... Args>
+StringKeyCache<R(*)(Args...), R, Args...> stringkey_cache_helper(R (*)(Args...));
 
 template <class T, class = void>
 struct has_untemplated_call : public std::false_type {};
@@ -112,6 +131,12 @@ auto cache(const FObj& fobj, std::enable_if_t<
     void *> = nullptr)
 {
     return decltype(detail::cache_helper_obj(fobj, &FObj::operator())){fobj};
+}
+
+template<class Func>
+auto stringkey_cache(const Func& fobj)
+{
+    return decltype(detail::stringkey_cache_helper(fobj)){fobj};
 }
 
 template<class FObj>
