@@ -5,6 +5,7 @@
 #include <array>
 #include <sstream>
 #include <algorithm>
+#include <numeric>
 #include <type_traits>
 
 namespace AOC
@@ -415,6 +416,34 @@ auto takeFirst(const std::vector<T>& v)
     if(v.size() < N)
         throw std::length_error("vector should have at least " + std::to_string(N) + " values.");
 	return takeFirstHelper(v, std::make_index_sequence<N>{});
+}
+
+namespace detail
+{
+
+template<class T>
+inline std::string _to_string(const T& obj)
+{
+	// 標準函式庫中沒有吃 string 回傳自己的 to_string()，只好自己造一個
+	if constexpr(std::is_same_v<std::decay_t<T>, std::string>)
+		return obj;
+	else
+	{
+		using std::to_string;
+		return to_string(obj);
+	}
+}
+
+} // namespace AOC::detail
+
+// 將範圍內的元素以連結字串連起來
+template<class It>
+std::string join(It begin, It end, const std::string& delimiter)
+{
+	std::string ret = detail::_to_string(*begin);
+	for(auto p = next(begin); p != end; ++p)
+		ret += delimiter + detail::_to_string(*p);
+	return ret;
 }
 
 }

@@ -61,11 +61,8 @@ int main(int argc, char* argv[])
 
 	if(!partb)
 	{
-		stringstream output;
-		for(auto v : run(program, reg))
-			output << "," << v;
-		string s = output.str();
-		cout << s.substr(1) << "\n";
+		vector<uint64_t> output = run(program, reg);
+		cout << AOC::join(output.begin(), output.end(), ",") << "\n";
 	}
 	else
 	{
