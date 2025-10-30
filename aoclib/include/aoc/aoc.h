@@ -1,12 +1,12 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <array>
-#include <sstream>
 #include <algorithm>
+#include <array>
 #include <numeric>
+#include <sstream>
+#include <string>
 #include <type_traits>
+#include <vector>
 
 namespace AOC
 {

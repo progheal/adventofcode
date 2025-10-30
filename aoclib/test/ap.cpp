@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <algorithm>
-#include <iostream>
 #include <sstream>
 #include <vector>
 #include "aoc/ap.h"
@@ -61,8 +60,7 @@ std::string testName(const ::testing::TestParamInfo<testdata_t>& info)
 auto getAP(int64_t max)
 {
     vector<AOC::AP> vec;
-    for(int64_t d = 2; d <= max; d++)
-    for(int64_t r = 0; r <= d*2; r++)
+    for(int64_t d = 2; d <= max; d++) for(int64_t r = 0; r <= d*2; r++)
     {
         vec.emplace_back(d, r);
     }

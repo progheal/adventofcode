@@ -1,11 +1,11 @@
 #ifdef DEBUG
 #include <iostream>
 #endif
-#include <vector>
-#include <string>
 #include <algorithm>
-#include <string_view>
 #include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
 #include "aoc/ocr.h"
 using namespace std;
 

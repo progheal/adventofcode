@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <iostream>
 #include <vector>
 #include "aoc/grid.h"
 using namespace std;

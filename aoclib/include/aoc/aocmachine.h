@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iosfwd>
+#include <iostream>
 #include <string>
 #include <map>
 #include <vector>
@@ -321,62 +321,62 @@ int ConcreteCommand<RegType, ArgCount, Callback>::execute(Machine<RegType>& m, P
 namespace Functions
 {
 
-auto nop = []()->int { return 0; };
+inline auto nop = []()->int { return 0; };
 
-auto mov = [](int& dst, int src)->int { dst = src; return 0; };
-auto movr = [](int src, int& dst)->int { dst = src; return 0; };
+inline auto mov = [](int& dst, int src)->int { dst = src; return 0; };
+inline auto movr = [](int src, int& dst)->int { dst = src; return 0; };
 
-auto add = [](int& dst, int src)->int { dst += src; return 0; };
-auto sub = [](int& dst, int src)->int { dst -= src; return 0; };
-auto mul = [](int& dst, int src)->int { dst *= src; return 0; };
-auto idiv = [](int& dst, int src)->int { dst /= src; return 0; };
-auto rem = [](int& dst, int src)->int { dst %= src; return 0; };
+inline auto add = [](int& dst, int src)->int { dst += src; return 0; };
+inline auto sub = [](int& dst, int src)->int { dst -= src; return 0; };
+inline auto mul = [](int& dst, int src)->int { dst *= src; return 0; };
+inline auto idiv = [](int& dst, int src)->int { dst /= src; return 0; };
+inline auto rem = [](int& dst, int src)->int { dst %= src; return 0; };
 
-auto addr = [](int src, int& dst)->int { dst += src; return 0; };
-auto subr = [](int src, int& dst)->int { dst -= src; return 0; };
-auto mulr = [](int src, int& dst)->int { dst *= src; return 0; };
-auto idivr = [](int src, int& dst)->int { dst /= src; return 0; };
-auto remr = [](int src, int& dst)->int { dst %= src; return 0; };
+inline auto addr = [](int src, int& dst)->int { dst += src; return 0; };
+inline auto subr = [](int src, int& dst)->int { dst -= src; return 0; };
+inline auto mulr = [](int src, int& dst)->int { dst *= src; return 0; };
+inline auto idivr = [](int src, int& dst)->int { dst /= src; return 0; };
+inline auto remr = [](int src, int& dst)->int { dst %= src; return 0; };
 
-auto inc = [](int& dst)->int { ++dst; return 0; };
-auto dec = [](int& dst)->int { --dst; return 0; };
+inline auto inc = [](int& dst)->int { ++dst; return 0; };
+inline auto dec = [](int& dst)->int { --dst; return 0; };
 
 // 傳入參數預設是相對於**本身**的跳躍量，這是由於題目大多設定如此
 // 但機器內部預設回傳相對於**下一指令**的跳躍量以優先保持「不跳躍的指令回傳 0」的設定
 // 故預設函數全部都是回傳參數減一
-auto jmp = [](int off)->int { return off - 1; };
-auto jgz = [](int value, int off)->int { return value > 0 ? off - 1 : 0; };
-auto jge = [](int value, int off)->int { return value >= 0 ? off - 1 : 0; };
-auto jlz = [](int value, int off)->int { return value < 0 ? off - 1 : 0; };
-auto jle = [](int value, int off)->int { return value <= 0 ? off - 1 : 0; };
-auto jez = [](int value, int off)->int { return value == 0 ? off - 1 : 0; };
-auto jnz = [](int value, int off)->int { return value != 0 ? off - 1 : 0; };
+inline auto jmp = [](int off)->int { return off - 1; };
+inline auto jgz = [](int value, int off)->int { return value > 0 ? off - 1 : 0; };
+inline auto jge = [](int value, int off)->int { return value >= 0 ? off - 1 : 0; };
+inline auto jlz = [](int value, int off)->int { return value < 0 ? off - 1 : 0; };
+inline auto jle = [](int value, int off)->int { return value <= 0 ? off - 1 : 0; };
+inline auto jez = [](int value, int off)->int { return value == 0 ? off - 1 : 0; };
+inline auto jnz = [](int value, int off)->int { return value != 0 ? off - 1 : 0; };
 
-auto mov64 = [](int64_t& dst, int64_t src)->int { dst = src; return 0; };
-auto movr64 = [](int64_t src, int64_t& dst)->int { dst = src; return 0; };
+inline auto mov64 = [](int64_t& dst, int64_t src)->int { dst = src; return 0; };
+inline auto movr64 = [](int64_t src, int64_t& dst)->int { dst = src; return 0; };
 
-auto add64 = [](int64_t& dst, int64_t src)->int { dst += src; return 0; };
-auto sub64 = [](int64_t& dst, int64_t src)->int { dst -= src; return 0; };
-auto mul64 = [](int64_t& dst, int64_t src)->int { dst *= src; return 0; };
-auto idiv64 = [](int64_t& dst, int64_t src)->int { dst /= src; return 0; };
-auto rem64 = [](int64_t& dst, int64_t src)->int { dst %= src; return 0; };
+inline auto add64 = [](int64_t& dst, int64_t src)->int { dst += src; return 0; };
+inline auto sub64 = [](int64_t& dst, int64_t src)->int { dst -= src; return 0; };
+inline auto mul64 = [](int64_t& dst, int64_t src)->int { dst *= src; return 0; };
+inline auto idiv64 = [](int64_t& dst, int64_t src)->int { dst /= src; return 0; };
+inline auto rem64 = [](int64_t& dst, int64_t src)->int { dst %= src; return 0; };
 
-auto addr64 = [](int64_t src, int64_t& dst)->int { dst += src; return 0; };
-auto subr64 = [](int64_t src, int64_t& dst)->int { dst -= src; return 0; };
-auto mulr64 = [](int64_t src, int64_t& dst)->int { dst *= src; return 0; };
-auto idivr64 = [](int64_t src, int64_t& dst)->int { dst /= src; return 0; };
-auto remr64 = [](int64_t src, int64_t& dst)->int { dst %= src; return 0; };
+inline auto addr64 = [](int64_t src, int64_t& dst)->int { dst += src; return 0; };
+inline auto subr64 = [](int64_t src, int64_t& dst)->int { dst -= src; return 0; };
+inline auto mulr64 = [](int64_t src, int64_t& dst)->int { dst *= src; return 0; };
+inline auto idivr64 = [](int64_t src, int64_t& dst)->int { dst /= src; return 0; };
+inline auto remr64 = [](int64_t src, int64_t& dst)->int { dst %= src; return 0; };
 
-auto inc64 = [](int64_t& dst)->int { ++dst; return 0; };
-auto dec64 = [](int64_t& dst)->int { --dst; return 0; };
+inline auto inc64 = [](int64_t& dst)->int { ++dst; return 0; };
+inline auto dec64 = [](int64_t& dst)->int { --dst; return 0; };
 
-auto jmp64 = [](int64_t off)->int { return off - 1; };
-auto jgz64 = [](int64_t value, int64_t off)->int { return value > 0 ? off - 1 : 0; };
-auto jge64 = [](int64_t value, int64_t off)->int { return value >= 0 ? off - 1 : 0; };
-auto jlz64 = [](int64_t value, int64_t off)->int { return value < 0 ? off - 1 : 0; };
-auto jle64 = [](int64_t value, int64_t off)->int { return value <= 0 ? off - 1 : 0; };
-auto jez64 = [](int64_t value, int64_t off)->int { return value == 0 ? off - 1 : 0; };
-auto jnz64 = [](int64_t value, int64_t off)->int { return value != 0 ? off - 1 : 0; };
+inline auto jmp64 = [](int64_t off)->int { return off - 1; };
+inline auto jgz64 = [](int64_t value, int64_t off)->int { return value > 0 ? off - 1 : 0; };
+inline auto jge64 = [](int64_t value, int64_t off)->int { return value >= 0 ? off - 1 : 0; };
+inline auto jlz64 = [](int64_t value, int64_t off)->int { return value < 0 ? off - 1 : 0; };
+inline auto jle64 = [](int64_t value, int64_t off)->int { return value <= 0 ? off - 1 : 0; };
+inline auto jez64 = [](int64_t value, int64_t off)->int { return value == 0 ? off - 1 : 0; };
+inline auto jnz64 = [](int64_t value, int64_t off)->int { return value != 0 ? off - 1 : 0; };
 
 } // namespace Functions
 
