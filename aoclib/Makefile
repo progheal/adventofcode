@@ -5,7 +5,7 @@ BUILD = ${TOP}build
 SRC = ${TOP}src
 TEST = ${TOP}test
 
-CXXFLAGS = -std=gnu++17
+CXXFLAGS = -std=gnu++20
 CXXFLAGS += -I${INCLUDE}
 
 ifdef DEBUG

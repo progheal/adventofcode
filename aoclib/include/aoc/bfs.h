@@ -12,7 +12,6 @@ namespace AOC
 /*
 // 搜尋狀態結構的指定介面
 // Interface of states to search
-// Note: I default to C++17 so no concept check
 struct State
 {
 	// 花費型態，必須滿足下列兩條件：
@@ -53,10 +52,62 @@ struct State
 	void visit(const cost_t& path) const;
 };
 */
+// C++20 concept check
+#if __cplusplus >= 202002L
+#include <concepts>
+
+template<class C>
+concept complex_state_cost = requires(C c1, C c2)
+{
+	{ c1.size() } -> std::integral;
+	{ c1 + c2 } -> std::same_as<C>;
+};
+
+template<class C>
+concept state_cost = std::integral<C> || complex_state_cost<C>;
+
+template<class T>
+concept hashable = requires(T a)
+{
+    { std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
+};
+
+template<class S>
+concept bfs_state = state_cost<typename S::cost_t> && requires(const S s)
+{
+	{ s.isFinish() } -> std::same_as<bool>;
+	{ s.nextMoves() } -> std::same_as<std::vector<std::pair<S, typename S::cost_t>>>;
+	{ s.id() } -> hashable;
+};
+
+template<class S>
+concept astar_state = bfs_state<S> && requires(const S s)
+{
+	{ s.estimateRemain() } -> std::same_as<typename S::cost_t>;
+};
+
+template<class S>
+concept state_has_visit = bfs_state<S> && requires(const S s)
+{
+	s.visit(typename S::cost_t{});
+};
+
+#endif
 
 namespace detail
 {
 
+#if __cplusplus >= 202002L
+template<bfs_state S>
+inline void doVisit(const S& c, const typename S::cost_t& path)
+{
+	if constexpr (state_has_visit<S>)
+	{
+		c.visit(path);
+	}
+}
+
+#else
 // SFINAE 判斷狀態類別是否有 visit 函數
 template<class C, class = void>
 class HasVisit : public std::false_type {};
@@ -76,11 +127,28 @@ inline void doVisit(const C& c, const typename C::cost_t& path)
 		c.visit(path);
 	}
 }
+#endif
 
 // 將花費型態轉為整數
 // Convert cost type to integer
+#if __cplusplus >= 202002L
+
+template<std::integral T>
+inline int cost_value(const T& value)
+{
+	return value;
+}
+
+template<complex_state_cost T>
+inline int cost_value(const T& value)
+{
+	return value.size();
+}
+
+#else
+
 template<class T>
-inline std::enable_if_t<std::is_arithmetic_v<T>, int> cost_value(const T& value)
+inline std::enable_if_t<std::is_integral_v<T>, int> cost_value(const T& value)
 {
 	return value;
 }
@@ -90,6 +158,8 @@ inline decltype(std::declval<T>().size(), int()) cost_value(const T& value)
 {
 	return value.size();
 }
+
+#endif
 
 } // namespace detail
 
@@ -123,7 +193,11 @@ public:
 
 // BFS 搜尋 (如淹水或走迷宮)，回傳走到目標時的花費 (0 表示走不到)
 // BFS Search, return the min cost to target (0 = unreachable)
+#if __cplusplus >= 202002L
+template<bfs_state State>
+#else
 template<class State>
+#endif
 auto BFS(const State& init)
 {
 	typedef typename State::cost_t Cost;
@@ -160,7 +234,11 @@ auto BFS(const State& init)
 // 回傳走到目標時的花費 (0 表示走不到)
 // A* algorithm, or when estimates are always 0 becomes Dijkstra.
 // Return the min cost to target (0 = unreachable)
+#if __cplusplus >= 202002L
+template<astar_state State>
+#else
 template<class State>
+#endif
 auto AStar(const State& init)
 {
 	typedef typename State::cost_t Cost;
