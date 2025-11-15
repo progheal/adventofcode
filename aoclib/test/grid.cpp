@@ -114,6 +114,28 @@ TEST(GridTest, VectorHashes)
     EXPECT_EQ(hv(AOC::Vector{2, -1}), 24);
 }
 
+TEST(GridTest, CoordToExcelString)
+{
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 0}), "A1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{1, 0}), "A2"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{2, 0}), "A3"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{-1, 0}), "A_1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{-2, 0}), "A_2"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, -1}), "xA1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, -2}), "xB1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 1}), "B1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 25}), "Z1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 26}), "AA1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 51}), "AZ1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 510}), "SQ1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 676}), "ZA1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 701}), "ZZ1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 702}), "AAA1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 1068}), "AOC1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 18278}), "AAAA1"s);
+    EXPECT_EQ(AOC::to_excel_string(AOC::Coord{0, 475254}), "AAAAA1"s);
+}
+
 TEST(GridTest, GridRead)
 {
     vector<string> maze {

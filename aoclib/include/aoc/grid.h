@@ -123,6 +123,24 @@ inline constexpr Coord operator + (Coord c, const Vector& v) {return c += v;}
 inline constexpr Coord operator + (const Vector& v, Coord c) {return c += v;} 
 inline constexpr Coord operator - (Coord c, const Vector& v) {return c -= v;}
 
+inline std::string to_excel_string(const Coord& c)
+{
+    std::string s = "";
+    int y = c.y >= 0 ? c.y + 1 : -c.y;
+    while(y > 0)
+    {
+        int r = (y - 1) % 26;
+        s = (char)('A' + r) + s;
+        y = (y - r) / 26;
+    }
+    if(c.y < 0) s = 'x' + s;
+    if(c.x < 0)
+        s += '_' + std::to_string(-c.x);
+    else
+        s += std::to_string(c.x + 1);
+    return s;
+}
+
 inline std::string to_string(const Coord& c)
 {
     return "(" + std::to_string(c.x) + "," + std::to_string(c.y) + ")";
