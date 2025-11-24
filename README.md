@@ -5,14 +5,18 @@
 * [2022 文章](https://blog.cruciferslab.net/?p=1153)
 * [2023 文章](https://blog.cruciferslab.net/?p=1587)
 * [2024 文章](https://blog.cruciferslab.net/?p=1831)
+* [2025 文章](https://blog.cruciferslab.net/?p=2281)
 
 `aoclib` 是一些題目之間的公用函式：
 
 * `aoc.h`：處理輸入
 * `aocmachine.h`：處理簡單組合語言分析執行
 * `bfs.h`：泛用 BFS 及 A* 演算法；這個檔案有英文註解是為了[貼去 Reddit 上](https://redd.it/zu7kq8)
+* `cache.h`：滿醜的 cache 函式庫
+* `grid.h`：方格存取函式庫，含座標／向量運算
 * `ocr.h`：參照其他 AoC 的 OCR 函式庫實作的我流版本
 * `util.h`：其他公用函數
+* `xpm_export.h`：將網格轉換為 xpm 圖片格式輸出
 
 其中 `ocr.h` 及 `util.h` 有原始碼實作，需連結 `libaoc.a`；其餘則是泛型 header-only 函式庫。
 
@@ -30,7 +34,7 @@ This is my AoC (Advent of Code) solutions.
 
 Comments and documents will mostly in Traditional Chinese; the link at the top
 of the document is a blog post by me (also in Traditional Chinese) describing
-some thoughts and processes when solving the problems in 2022 and 2023. 
+some thoughts and processes when solving the problems in previous years. 
 
 An exception is that there is some English comment in `aoclib/include/aoc/bfs.h`
 so I can post this as a support to this
