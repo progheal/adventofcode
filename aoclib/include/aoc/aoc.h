@@ -402,36 +402,38 @@ inline auto readNumberMatrix(const std::string& s, bool hasNegative = false)
 	return ret;
 }
 
-// 回傳一個 proxy tuple 可以取得 vector 的前 N 個值
+// 回傳一個 proxy tuple 可以取得 vector 的前 N 個值 (或特定已知索引的值)
 // 使其可以使用在 std::tie 或 structured binding
 // 此 tuple 元素是指向原 vector 元素的參考, 較先前取出元素包為 std::array 減少一次複製
 template<class T, std::size_t... I>
-auto takeFirstHelper(const std::vector<T>& v, std::index_sequence<I...>)
+auto vectorIndexToTuple(const std::vector<T>& v, std::index_sequence<I...>)
 {
 	return std::tuple(std::ref(v[I])...);
 }
+
 template<int N, class T>
 auto takeFirst(const std::vector<T>& v)
 {
     if(v.size() < N)
         throw std::length_error("vector should have at least " + std::to_string(N) + " values.");
-	return takeFirstHelper(v, std::make_index_sequence<N>{});
+	return vectorIndexToTuple(v, std::make_index_sequence<N>{});
 }
 
 namespace detail
 {
 
+// 標準函式庫中沒有吃 string 回傳自己的 to_string()，只好自己造一個
 template<class T>
 inline std::string _to_string(const T& obj)
-{
-	// 標準函式庫中沒有吃 string 回傳自己的 to_string()，只好自己造一個
-	if constexpr(std::is_same_v<std::decay_t<T>, std::string>)
-		return obj;
-	else
 	{
 		using std::to_string;
 		return to_string(obj);
 	}
+
+template<>
+inline std::string _to_string<std::string>(const std::string& obj)
+{
+	return obj;
 }
 
 } // namespace AOC::detail
