@@ -5,6 +5,9 @@
 #include <iosfwd>
 #include <string>
 #include <type_traits>
+#if __cplusplus >= 202002L
+#include <format>
+#endif
 
 namespace AOC
 {
@@ -22,8 +25,12 @@ struct Vector
     static const Vector NORTHWEST, NORTH, NORTHEAST,
                              WEST,             EAST,
                         SOUTHWEST, SOUTH, SOUTHEAST;
+    // von-Neumann neighborhood: 4 cardinal direction
     static const Vector VonNeumannNeighborhood[4];
+    // Moore neighborhood: 8 direction around
     static const Vector MooreNeighborhood[8];
+    // knight "neighborhood": 8 chess knight moves
+    static const Vector KnightNeighborhood[8];
 
     constexpr Vector& operator += (const Vector& v) {x += v.x; y += v.y; return *this;}
     constexpr Vector& operator -= (const Vector& v) {x -= v.x; y -= v.y; return *this;}
@@ -83,6 +90,17 @@ constexpr Vector Vector::MooreNeighborhood[8] = {
     Vector::NORTHWEST
 };
 
+constexpr Vector Vector::KnightNeighborhood[8] = {
+    {2, 1},
+    {1, 2},
+    {-1, 2},
+    {-2, 1},
+    {-2, -1},
+    {-1, -2},
+    {1, -2},
+    {2, -1},
+};
+
 inline constexpr Vector operator + (Vector v1, const Vector& v2) {return v1 += v2;}
 inline constexpr Vector operator - (Vector v1, const Vector& v2) {return v1 -= v2;}
 inline constexpr Vector operator * (Vector v, int scalar) {return v *= scalar;}
@@ -123,6 +141,9 @@ inline constexpr Coord operator + (Coord c, const Vector& v) {return c += v;}
 inline constexpr Coord operator + (const Vector& v, Coord c) {return c += v;} 
 inline constexpr Coord operator - (Coord c, const Vector& v) {return c -= v;}
 
+// 轉成 Excel 格式座標 (例：(0,0) => "A1"、(1,3) => "D2")
+// 直欄字母順序為 A, B, ..., Z, AA, AB, ..., AZ, BA, ..., BZ, ..., ZZ, AAA, ...
+// 負座標直欄前置 x，橫列前置 _ (例：（-1,-4) => "xD_1")
 inline std::string to_excel_string(const Coord& c)
 {
     std::string s = "";
@@ -155,7 +176,7 @@ struct CoordOrder
 {
     constexpr bool operator ()(const Coord& c1, const Coord& c2) const
     {
-        return c1.x == c2.x ? c1.y < c2.y : c1.x < c2.x;
+        return std::tie(c1.x, c1.y) < std::tie(c2.x, c2.y);
     }
 };
 
@@ -330,14 +351,53 @@ inline std::ostream& operator << (std::ostream& out, const Mob& m)
     return out << to_string(m);
 }
 
-}
+} // namespace AOC
 
-namespace std
-{
-template<> struct hash<AOC::Coord>
+// std::hash
+template<> struct std::hash<AOC::Coord>
 { size_t operator ()(const AOC::Coord& c) const {return c.hash();} };
-template<> struct hash<AOC::Vector>
+template<> struct std::hash<AOC::Vector>
 { size_t operator ()(const AOC::Vector& v) const {return v.hash();} };
-template<> struct hash<AOC::Mob>
+template<> struct std::hash<AOC::Mob>
 { size_t operator ()(const AOC::Mob& m) const {return m.hash();} };
-}
+
+#if __cplusplus >= 202002L
+// std::formatter
+template<> struct std::formatter<AOC::Coord> : std::formatter<string_view>
+{
+    bool isExcel = false;
+    // {:x} 以 Excel 格式印出座標；若要其他字串格式，x 需置於字串格式之前
+    constexpr auto parse(auto& ctx)
+    {
+        if(*ctx.begin() == 'x' || *ctx.begin() == 'X')
+        {
+            isExcel = true;
+            ctx.advance_to(next(ctx.begin()));
+        }
+        return std::formatter<string_view>::parse(ctx);
+    }
+    auto format(const AOC::Coord& c, auto& ctx) const
+    {
+        if(isExcel)
+            return std::formatter<string_view>::format(to_excel_string(c), ctx);
+        else
+            return std::formatter<string_view>::format(to_string(c), ctx);
+    }
+};
+template<> struct std::formatter<AOC::Vector> : std::formatter<string_view>
+{
+    auto format(const AOC::Vector& v, auto& ctx) const
+    {
+        return std::formatter<string_view>::format(to_string(v), ctx);
+    }
+    // parse 繼承 std::formatter<string_view>
+};
+template<> struct std::formatter<AOC::Mob> : std::formatter<string_view>
+{
+    auto format(const AOC::Mob& m, auto& ctx) const
+    {
+        return std::formatter<string_view>::format(to_string(m), ctx);
+    }
+    // parse 繼承 std::formatter<string_view>
+};
+#endif
