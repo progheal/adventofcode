@@ -288,7 +288,7 @@ private:
         }
         bool operator != (const PositionIterator& it) const {return !(operator ==(it));}
         auto& operator * () const {return parent->at(pos.x, pos.y);}
-        auto& operator -> () const {return &parent->at(pos.x, pos.y);}
+        auto operator -> () const {return &parent->at(pos.x, pos.y);}
         PositionIterator& operator ++ () { inc(); return *this; }
         PositionIterator operator ++ (int) { auto ret = *this; inc(); return ret; }
     };
