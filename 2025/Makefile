@@ -22,6 +22,9 @@ endif
 06b: 06b.o
 	$(CXX) $^ $(LINKFLAGS) -o $@
 
+09b: 09b.o
+	$(CXX) $^ $(LINKFLAGS) -o $@
+
 %b: %a
 	cp -f ./$^ ./$@
 
